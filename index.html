@@ -612,9 +612,9 @@
     <div class="section-body open highlight">
         <div class="result-grid">
             <div class="result-item full">
-                <div class="label">RMB 单价</div>
-                <div class="value rmb" id="resultUnitPriceRMB">--.--</div>
-                <div class="sub-value">元 / 公斤</div>
+                <div class="label">USD 单价</div>
+                <div class="value usd" id="resultUnitPriceUSDperKg">--.--</div>
+                <div class="sub-value">美元 / 公斤</div>
             </div>
             <div class="result-item">
                 <div class="label">总价（RMB）</div>
@@ -966,6 +966,7 @@ function calc() {
     const rateDiffAmount = finalTotalRMB * (centralRate - lockedRate);
 
     const finalTotalUSD = finalTotalRMB / lockedRate;
+    const finalUnitPriceUSDPerKg = finalTotalUSD / quantity;
     const finalUnitPriceUSDPerTon = (finalTotalUSD / quantity) * 1000;
 
     // --- 退税 ---
@@ -1022,7 +1023,7 @@ function calc() {
     $(`rateDiffAmount`).textContent = fmt(rateDiffAmount, 2);
 
     // --- 报价结果 ---
-    $(`resultUnitPriceRMB`).textContent = fmt(finalUnitPriceRMB, 2);
+    $(`resultUnitPriceUSDperKg`).textContent = fmt(finalUnitPriceUSDPerKg, 2);
     $(`resultTotalRMB`).textContent = fmt(finalTotalRMB, 2);
     $(`resultTotalUSD`).textContent = fmt(finalTotalUSD, 2);
     $(`resultUnitPriceUSD`).textContent = fmt(finalUnitPriceUSDPerTon, 2);
