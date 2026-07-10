@@ -4,194 +4,307 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="format-detection" content="telephone=no">
-    <title>外贸出口报价计算器</title>
+    <title>出口报价计算器</title>
     <style>
+        :root {
+            --primary: #0f2b4a;
+            --primary-light: #1a4a7a;
+            --primary-gradient: linear-gradient(135deg, #0f2b4a 0%, #1e5799 100%);
+            --accent: #e8a838;
+            --accent-light: #f5d48a;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --text: #1a1a2e;
+            --text-secondary: #6b7280;
+            --bg: #f1f4f9;
+            --card-bg: #ffffff;
+            --border: #e8ecf1;
+            --shadow: 0 2px 12px rgba(15,43,74,0.08);
+            --radius: 14px;
+            --radius-sm: 10px;
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
-            background: #f0f2f5; color: #1a1a2e; padding: 12px; padding-bottom: 60px;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", Arial, sans-serif;
+            background: var(--bg); color: var(--text); padding: 0 0 70px 0; min-height: 100vh;
         }
-        .header {
-            background: linear-gradient(135deg, #1a3a5c 0%, #2a5a8c 100%);
-            color: #fff; border-radius: 14px; padding: 20px 16px; margin-bottom: 14px;
-            text-align: center; box-shadow: 0 4px 15px rgba(26,58,92,0.3);
-        }
-        .header h1 { font-size: 20px; font-weight: 700; letter-spacing: 1px; }
-        .header p { font-size: 12px; opacity: .8; margin-top: 6px; }
-        .section {
-            background: #fff; border-radius: 12px; margin-bottom: 10px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.06); overflow: hidden;
-        }
-        .section-header {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 14px 16px; cursor: pointer; user-select: none;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        .section-header .title { font-size: 15px; font-weight: 600; color: #1a3a5c; }
-        .section-header .arrow {
-            font-size: 12px; color: #999; transition: transform 0.25s ease;
-        }
-        .section-header .arrow.open { transform: rotate(180deg); }
-        .section-body { padding: 12px 16px 16px; display: none; }
-        .section-body.open { display: block; }
-        .section-body.highlight { background: #f8fbff; }
+        input, select, button, textarea { font-family: inherit; }
 
-        .form-row { display: flex; align-items: center; margin-bottom: 10px; }
+        /* ===== 密码锁 ===== */
+        #loginScreen {
+            display: none; position: fixed; inset: 0; z-index: 999;
+            background: var(--primary-gradient);
+            display: none; align-items: center; justify-content: center; padding: 24px;
+        }
+        #loginScreen:only-child { display: flex; }
+        .login-box {
+            background: rgba(255,255,255,0.12); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px; padding: 40px 28px; width: 100%; max-width: 340px;
+            border: 1px solid rgba(255,255,255,0.15); text-align: center;
+        }
+        .login-icon { width: 72px; height: 72px; background: var(--accent); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 34px; box-shadow: 0 8px 24px rgba(232,168,56,0.3); }
+        .login-box h2 { color: #fff; font-size: 20px; font-weight: 700; letter-spacing: 0.5px; }
+        .login-box .sub { color: rgba(255,255,255,0.6); font-size: 13px; margin: 6px 0 24px; }
+        .login-box input {
+            width: 100%; height: 48px; background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.2);
+            border-radius: 12px; padding: 0 16px; font-size: 18px; color: #fff; text-align: center; outline: none; letter-spacing: 8px;
+            transition: all 0.3s; font-weight: 600;
+        }
+        .login-box input::placeholder { color: rgba(255,255,255,0.3); letter-spacing: 0; font-weight: 400; }
+        .login-box input:focus { border-color: var(--accent); background: rgba(255,255,255,0.2); }
+        .login-btn {
+            width: 100%; height: 48px; background: var(--accent); border: none; border-radius: 12px;
+            font-size: 16px; font-weight: 700; color: var(--primary); margin-top: 16px; cursor: pointer;
+            transition: all 0.2s; letter-spacing: 2px; box-shadow: 0 4px 16px rgba(232,168,56,0.3);
+        }
+        .login-btn:active { transform: scale(0.97); }
+        .login-error { color: #fca5a5; font-size: 13px; margin-top: 10px; display: none; }
+        .login-footer { color: rgba(255,255,255,0.3); font-size: 11px; margin-top: 24px; }
+
+        /* ===== 主App ===== */
+        #mainApp { display: none; }
+        #mainApp:only-child { display: block; }
+
+        /* ===== 头部 ===== */
+        .app-header {
+            background: var(--primary-gradient); padding: 48px 20px 24px; position: relative; overflow: hidden;
+        }
+        .app-header::after {
+            content: ''; position: absolute; top: -60%; right: -30%; width: 200px; height: 200px;
+            background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%); border-radius: 50%;
+        }
+        .app-header::before {
+            content: ''; position: absolute; bottom: -40%; left: -20%; width: 160px; height: 160px;
+            background: radial-gradient(circle, rgba(232,168,56,0.08) 0%, transparent 70%); border-radius: 50%;
+        }
+        .app-header h1 { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: 1px; position: relative; z-index: 1; }
+        .app-header p { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 4px; position: relative; z-index: 1; }
+        .header-badge {
+            display: inline-block; background: var(--accent); color: var(--primary); font-size: 10px;
+            font-weight: 700; padding: 2px 10px; border-radius: 20px; margin-top: 8px; letter-spacing: 0.5px;
+        }
+
+        /* ===== Tab栏 ===== */
+        .tab-bar {
+            display: flex; margin: -16px 16px 0; background: var(--card-bg); border-radius: var(--radius);
+            box-shadow: var(--shadow); overflow: hidden; position: relative; z-index: 2;
+        }
+        .tab-bar .tab {
+            flex: 1; text-align: center; padding: 14px 8px; font-size: 14px; font-weight: 500;
+            color: var(--text-secondary); cursor: pointer; transition: all 0.25s; position: relative;
+        }
+        .tab-bar .tab.active { color: var(--primary); font-weight: 700; }
+        .tab-bar .tab.active::after {
+            content: ''; position: absolute; bottom: 0; left: 25%; width: 50%; height: 3px;
+            background: var(--primary); border-radius: 3px 3px 0 0;
+        }
+        .tab-bar .tab .icon { display: block; font-size: 18px; margin-bottom: 2px; }
+        .tab-content { display: none; padding: 12px 16px; }
+        .tab-content.active { display: block; }
+
+        /* ===== 卡片 ===== */
+        .card {
+            background: var(--card-bg); border-radius: var(--radius); margin-bottom: 12px;
+            box-shadow: var(--shadow); overflow: hidden; transition: all 0.3s;
+        }
+        .card-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 16px; cursor: pointer; user-select: none; position: relative;
+        }
+        .card-header .title {
+            font-size: 14px; font-weight: 600; color: var(--primary); display: flex; align-items: center; gap: 8px;
+        }
+        .card-header .title .dot {
+            width: 4px; height: 4px; background: var(--accent); border-radius: 50%; display: inline-block;
+        }
+        .card-header .arrow {
+            width: 22px; height: 22px; border-radius: 50%; background: var(--bg);
+            display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--text-secondary);
+            transition: transform 0.3s;
+        }
+        .card-header .arrow.open { transform: rotate(180deg); }
+        .card-body { padding: 0 16px 16px; display: none; }
+        .card-body.open { display: block; }
+        .card-body:empty { display: none; }
+
+        /* ===== 表单 ===== */
+        .form-row {
+            display: flex; align-items: center; margin-bottom: 10px; min-height: 40px;
+        }
         .form-row:last-child { margin-bottom: 0; }
         .form-label {
-            font-size: 13px; color: #555; min-width: 100px; flex-shrink: 0;
-            padding-right: 8px;
+            font-size: 13px; color: var(--text-secondary); min-width: 90px; flex-shrink: 0;
+            padding-right: 10px; font-weight: 500;
         }
-        .form-label .unit { font-size: 11px; color: #999; }
-        .form-input-wrap { flex: 1; display: flex; align-items: center; }
+        .form-label-sm { min-width: 72px; }
+        .form-input-wrap { flex: 1; display: flex; align-items: center; position: relative; }
         .form-input {
-            flex: 1; height: 36px; border: 1px solid #ddd; border-radius: 8px;
-            padding: 0 10px; font-size: 14px; color: #333;
-            background: #fafafa; outline: none; min-width: 0; width: 100%;
+            flex: 1; height: 38px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+            padding: 0 12px; font-size: 14px; color: var(--text); background: #f8fafc;
+            outline: none; min-width: 0; width: 100%; transition: all 0.25s;
             -webkit-appearance: none; appearance: none;
         }
-        .form-input:focus { border-color: #2a5a8c; background: #fff; }
-        .form-input.result {
-            background: #e8f4e8; border-color: #4caf50; font-weight: 600; color: #1b5e20;
-        }
-        .form-input.highlight-result {
-            background: #fff8e1; border-color: #ff9800; font-weight: 700; color: #e65100;
-        }
+        .form-input:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(15,43,74,0.08); }
+        .form-input::placeholder { color: #b0b8c4; }
         .form-input-wrap .suffix {
-            font-size: 12px; color: #888; margin-left: 6px; white-space: nowrap;
+            font-size: 11px; color: #9ca3af; margin-left: 6px; white-space: nowrap; font-weight: 500; min-width: 32px;
         }
-
-        .inline-group { display: flex; gap: 8px; flex-wrap: wrap; }
-        .inline-group .form-row { flex: 1; min-width: 120px; }
+        .form-input-wrap .prefix {
+            font-size: 11px; color: #9ca3af; margin-right: 6px; white-space: nowrap;
+        }
 
         .select-wrap { flex: 1; position: relative; }
         .select-wrap select {
-            width: 100%; height: 36px; border: 1px solid #ddd; border-radius: 8px;
-            padding: 0 26px 0 10px; font-size: 14px; color: #333;
-            background: #fafafa url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E") no-repeat right 10px center;
-            -webkit-appearance: none; appearance: none; outline: none;
+            width: 100%; height: 38px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+            padding: 0 30px 0 12px; font-size: 13px; color: var(--text); background: #f8fafc;
+            outline: none; transition: all 0.25s; cursor: pointer;
+            -webkit-appearance: none; appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239ca3af' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 10px center;
         }
-        .select-wrap select:focus { border-color: #2a5a8c; background-color: #fff; }
+        .select-wrap select:focus { border-color: var(--primary); background-color: #fff; box-shadow: 0 0 0 3px rgba(15,43,74,0.08); }
 
-        .section-highlight {
-            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
-            border: 2px solid #1a3a5c;
-        }
-        .section-highlight .section-header { border-bottom-color: #90caf9; }
-        .section-highlight .section-header .title { color: #0d2137; }
-
-        .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .result-item {
-            background: #f8f9fa; border-radius: 8px; padding: 10px 12px; text-align: center;
-        }
-        .result-item .label { font-size: 11px; color: #888; margin-bottom: 4px; }
-        .result-item .value {
-            font-size: 18px; font-weight: 700; color: #1a3a5c; word-break: break-all;
-        }
-        .result-item .value.usd { color: #2e7d32; }
-        .result-item .value.rmb { color: #c62828; }
-        .result-item.full { grid-column: 1 / -1; }
-        .result-item .sub-value { font-size: 12px; color: #888; margin-top: 2px; }
-
+        /* ===== 结果框 ===== */
         .sub-result {
-            background: #f5f5f5; border-radius: 6px; padding: 8px 10px; margin-top: 8px;
+            background: #f8fafc; border-radius: var(--radius-sm); padding: 10px 12px; margin-top: 10px;
+            border: 1px solid var(--border);
         }
-        .sub-result .line { font-size: 12px; color: #666; line-height: 1.8; }
+        .sub-result .line { font-size: 12px; color: var(--text-secondary); line-height: 2; display: flex; justify-content: space-between; }
+        .sub-result .line span { font-weight: 600; color: var(--text); }
 
-        .note-text { font-size: 11px; color: #999; margin-top: 6px; line-height: 1.5; }
-
-        .tab-bar {
-            display: flex; background: #fff; border-radius: 10px; overflow: hidden;
-            margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        /* ===== 最终结果卡片 ===== */
+        .result-hero {
+            background: var(--primary-gradient); border-radius: var(--radius); padding: 20px; text-align: center;
+            margin-bottom: 12px; position: relative; overflow: hidden;
         }
-        .tab-bar .tab {
-            flex: 1; text-align: center; padding: 12px 6px; font-size: 13px; color: #888;
-            cursor: pointer; transition: all 0.2s; border-bottom: 2px solid transparent;
+        .result-hero::after {
+            content: ''; position: absolute; top: -50%; right: -30%; width: 200px; height: 200px;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%); border-radius: 50%;
         }
-        .tab-bar .tab.active { color: #1a3a5c; font-weight: 600; border-bottom-color: #1a3a5c; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        .result-hero .label { font-size: 11px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 4px; position: relative; z-index: 1; }
+        .result-hero .value { font-size: 40px; font-weight: 800; color: #fff; line-height: 1.1; letter-spacing: -1px; position: relative; z-index: 1; }
+        .result-hero .value .currency { font-size: 18px; font-weight: 600; opacity: 0.7; margin-right: 4px; }
+        .result-hero .sub-value { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 6px; position: relative; z-index: 1; }
 
-        .btn-reset {
-            display: block; width: 100%; height: 40px; line-height: 40px;
-            text-align: center; background: #fff; color: #999; font-size: 13px;
-            border-radius: 10px; border: 1px solid #ddd; margin-top: 10px; cursor: pointer;
+        .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+        .result-item {
+            background: #f8fafc; border-radius: var(--radius-sm); padding: 12px; text-align: center;
+            border: 1px solid var(--border); transition: all 0.2s;
         }
-        .btn-reset:active { background: #f5f5f5; }
+        .result-item:active { transform: scale(0.97); }
+        .result-item .label { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
+        .result-item .value {
+            font-size: 18px; font-weight: 700; color: var(--text); word-break: break-all;
+        }
+        .result-item .value.usd { color: #059669; }
+        .result-item .value.rmb { color: #dc2626; }
+        .result-item .sub-value { font-size: 11px; color: #9ca3af; margin-top: 2px; }
 
+        /* ===== 按钮 ===== */
+        .btn-primary {
+            width: 100%; height: 44px; background: var(--primary); color: #fff; border: none;
+            border-radius: var(--radius-sm); font-size: 15px; font-weight: 600; cursor: pointer;
+            transition: all 0.2s; letter-spacing: 0.5px;
+        }
+        .btn-primary:active { transform: scale(0.98); opacity: 0.9; }
+        .btn-primary.accent { background: var(--accent); color: var(--primary); }
+        .btn-outline {
+            width: 100%; height: 40px; background: transparent; color: var(--text-secondary);
+            border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 13px;
+            cursor: pointer; transition: all 0.2s; margin-top: 12px;
+        }
+        .btn-outline:active { background: var(--bg); }
+
+        /* ===== 使用说明 ===== */
+        .note-text { font-size: 12px; color: var(--text-secondary); line-height: 1.8; }
+        .note-text p { margin-bottom: 4px; }
+
+        /* ===== 消息提示 ===== */
+        .msg { font-size: 12px; margin-top: 8px; text-align: center; }
+
+        /* ===== 响应式 ===== */
         @media (max-width: 380px) {
-            .form-label { min-width: 80px; font-size: 12px; }
-            .result-item .value { font-size: 16px; }
+            .form-label { min-width: 72px; font-size: 12px; }
+            .result-hero .value { font-size: 32px; }
         }
+        @media (min-width: 500px) {
+            body { max-width: 480px; margin: 0 auto; }
+            .app-header { border-radius: 0 0 24px 24px; }
+        }
+
+        /* ===== 暗黑模式 ===== */
         @media (prefers-color-scheme: dark) {
-            body { background: #1a1a2e; color: #e0e0e0; }
-            .section { background: #222; }
-            .section-header { border-bottom-color: #333; }
-            .section-header .title { color: #6ea8fe; }
-            .form-input, .select-wrap select { background: #2a2a3e; border-color: #444; color: #e0e0e0; }
-            .form-input:focus, .select-wrap select:focus { background: #333; border-color: #6ea8fe; }
-            .form-label { color: #aaa; }
-            .form-input.result { background: #1b3a1b; color: #81c784; }
-            .form-input.highlight-result { background: #3a2a0a; color: #ffb74d; }
-            .result-item { background: #2a2a3e; }
-            .result-item .value { color: #6ea8fe; }
-            .result-item .value.usd { color: #81c784; }
-            .result-item .value.rmb { color: #ef5350; }
-            .sub-result { background: #2a2a3e; }
-            .sub-result .line { color: #aaa; }
-            .tab-bar { background: #222; }
-            .tab-bar .tab.active { color: #6ea8fe; border-bottom-color: #6ea8fe; }
-            .btn-reset { background: #222; color: #888; border-color: #444; }
-            .section-highlight { background: linear-gradient(135deg, #0d2137, #1a3a5c); }
-            .note-text { color: #777; }
-            #loginScreen > div { background: #222 !important; }
-            #loginScreen h2 { color: #6ea8fe !important; }
-            #loginScreen input { background: #2a2a3e !important; border-color: #444 !important; color: #e0e0e0 !important; }
+            :root {
+                --bg: #0d1117;
+                --card-bg: #161b22;
+                --border: #21262d;
+                --text: #e6edf3;
+                --text-secondary: #8b949e;
+                --shadow: 0 2px 12px rgba(0,0,0,0.3);
+                --primary: #1f6feb;
+                --primary-light: #58a6ff;
+                --primary-gradient: linear-gradient(135deg, #0d1117 0%, #1f2937 100%);
+            }
+            .form-input { background: #0d1117; color: #e6edf3; }
+            .form-input:focus { background: #161b22; }
+            .select-wrap select { background-color: #0d1117; color: #e6edf3; }
+            .select-wrap select:focus { background-color: #161b22; }
+            .sub-result { background: #0d1117; }
+            .result-item { background: #0d1117; }
+            .result-hero { background: linear-gradient(135deg, #0d1117, #1f2937); }
+            .tab-bar { background: #161b22; }
+            .card-header .arrow { background: #21262d; }
+            .app-header { background: linear-gradient(135deg, #0d1117 0%, #1f2937 100%); }
+            .login-box { background: rgba(22,27,34,0.9); }
+            .login-box input { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.1); }
+            .result-item .value.usd { color: #3fb950; }
+            .result-item .value.rmb { color: #f85149; }
         }
     </style>
 </head>
 <body>
 
-<!-- ========== 密码锁 ========== -->
-<div id="loginScreen" style="display:none;">
-    <div style="background:#fff;border-radius:14px;padding:30px 20px;margin-bottom:14px;box-shadow:0 2px 10px rgba(0,0,0,0.08);text-align:center;">
-        <div style="font-size:40px;margin-bottom:12px;">🔒</div>
-        <h2 style="font-size:18px;color:#1a3a5c;margin-bottom:6px;">出口报价计算器</h2>
-        <p style="font-size:13px;color:#999;margin-bottom:20px;">请输入访问密码</p>
-        <input type="password" id="accessPassword"
-               style="width:100%;height:44px;border:2px solid #ddd;border-radius:10px;padding:0 14px;font-size:16px;text-align:center;outline:none;"
-               placeholder="请输入密码" onkeydown="if(event.key==='Enter')checkPassword()">
-        <div id="passwordError" style="color:#e53935;font-size:13px;margin-top:8px;display:none;">密码错误，请重试</div>
-        <button onclick="checkPassword()"
-                style="width:100%;height:44px;background:linear-gradient(135deg,#1a3a5c,#2a5a8c);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:600;margin-top:14px;cursor:pointer;">
-            进入
-        </button>
-        <p style="font-size:11px;color:#bbb;margin-top:16px;">内部工具 · 仅限授权人员使用</p>
+<!-- ===== 密码锁 ===== -->
+<div id="loginScreen" style="display:flex;">
+    <div class="login-box">
+        <div class="login-icon">📊</div>
+        <h2>出口报价计算器</h2>
+        <p class="sub">玉林福达国际贸易 · 内部工具</p>
+        <input type="password" id="accessPassword" placeholder="请输入密码" autocomplete="off"
+               onkeydown="if(event.key==='Enter')checkPassword()">
+        <div class="login-error" id="passwordError">密码错误，请重试</div>
+        <button class="login-btn" onclick="checkPassword()">进 入</button>
+        <div class="login-footer">仅限授权人员使用</div>
     </div>
 </div>
 
-<div id="mainApp" style="display:none;">
-<div class="header">
-    <h1>📊 出口报价成本测算</h1>
-    <p>玉林福达国际贸易 · 手机快速报价工具</p>
+<!-- ===== 主界面 ===== -->
+<div id="mainApp">
+
+<!-- 头部 -->
+<div class="app-header">
+    <h1>📊 出口报价测算</h1>
+    <p>玉林福达国际贸易 · 手机快速报价</p>
+    <div class="header-badge">⚡ 实时计算</div>
 </div>
 
+<!-- Tab -->
 <div class="tab-bar" id="tabBar">
-    <div class="tab active" data-tab="tab-input">录入报价</div>
-    <div class="tab" data-tab="tab-result">结果概览</div>
+    <div class="tab active" data-tab="tab-input"><span class="icon">📝</span>录入报价</div>
+    <div class="tab" data-tab="tab-result"><span class="icon">📈</span>结果概览</div>
 </div>
 
 <div id="tab-input" class="tab-content active">
 
-<!-- ========== 基础信息 ========== -->
-<div class="section">
-    <div class="section-header" onclick="toggle(this)">
+<!-- ===== 基础信息 ===== -->
+<div class="card">
+    <div class="card-header" onclick="toggle(this)">
         <span class="title">📋 基础信息</span>
-        <span class="arrow">▼</span>
+        <span class="arrow open">▼</span>
     </div>
-    <div class="section-body open">
+    <div class="card-body open">
         <div class="form-row">
-            <span class="form-label">产品名称</span>
+            <span class="form-label">产品</span>
             <div class="select-wrap">
                 <select id="productName" onchange="loadDefaults()">
                     <option value="八角">八角（广西大红八角）</option>
@@ -204,13 +317,13 @@
         <div class="form-row">
             <span class="form-label">海关编码</span>
             <div class="form-input-wrap">
-                <input type="text" id="hsCode" class="form-input" value="0909611000" placeholder="如 0909611000">
+                <input type="text" id="hsCode" class="form-input" value="0909611000">
             </div>
         </div>
         <div class="form-row">
             <span class="form-label">进口国</span>
             <div class="form-input-wrap">
-                <input type="text" id="importCountry" class="form-input" value="马来西亚" placeholder="目的国家">
+                <input type="text" id="importCountry" class="form-input" value="马来西亚">
             </div>
         </div>
         <div class="form-row">
@@ -218,18 +331,18 @@
             <div class="select-wrap">
                 <select id="tradeTerm" onchange="calc()">
                     <option value="CIF">CIF（含运费保险）</option>
-                    <option value="FOB">FOB（装运港船上交货）</option>
+                    <option value="FOB">FOB（船上交货）</option>
                     <option value="CFR">CFR（成本加运费）</option>
                 </select>
             </div>
         </div>
         <div class="form-row">
-            <span class="form-label">柜型/数量</span>
+            <span class="form-label">柜型</span>
             <div class="select-wrap">
                 <select id="containerType" onchange="onContainerChange()">
-                    <option value="40HQ">40HQ 整柜（约16吨八角/12吨桂皮）</option>
-                    <option value="20GP">20GP 整柜（约7吨八角/5.5吨桂皮）</option>
-                    <option value="LCL">拼柜 LCL（按实际吨数）</option>
+                    <option value="40HQ">40HQ 整柜</option>
+                    <option value="20GP">20GP 整柜</option>
+                    <option value="LCL">拼柜 LCL</option>
                 </select>
             </div>
         </div>
@@ -248,15 +361,15 @@
     </div>
 </div>
 
-<!-- ========== 采购成本 ========== -->
-<div class="section">
-    <div class="section-header" onclick="toggle(this)">
+<!-- ===== 采购成本 ===== -->
+<div class="card">
+    <div class="card-header" onclick="toggle(this)">
         <span class="title">💰 采购成本</span>
-        <span class="arrow">▼</span>
+        <span class="arrow open">▼</span>
     </div>
-    <div class="section-body open">
+    <div class="card-body open">
         <div class="form-row">
-            <span class="form-label">裸价 <span class="unit">(元/千克)</span></span>
+            <span class="form-label">裸价</span>
             <div class="form-input-wrap">
                 <input type="number" id="nakedPrice" class="form-input" value="30" step="0.01" oninput="calc()">
                 <span class="suffix">元/kg</span>
@@ -284,25 +397,25 @@
             </div>
         </div>
         <div class="sub-result">
-            <div class="line">实际单价：<span id="actualUnitPrice">30.90</span> 元/kg</div>
-            <div class="line">票面总价（含税）：<span id="invoiceTotalWithTax">494,400.00</span> 元</div>
-            <div class="line">票面总价（不含税）：<span id="invoiceTotalWithoutTax">453,578</span> 元</div>
+            <div class="line"><span>实际单价</span><span id="actualUnitPrice">30.90 元/kg</span></div>
+            <div class="line"><span>票面总价（含税）</span><span id="invoiceTotalWithTax">494,400.00 元</span></div>
+            <div class="line"><span>票面总价（不含税）</span><span id="invoiceTotalWithoutTax">453,578 元</span></div>
         </div>
     </div>
 </div>
 
-<!-- ========== 包装成本 ========== -->
-<div class="section">
-    <div class="section-header" onclick="toggle(this)">
+<!-- ===== 包装成本 ===== -->
+<div class="card">
+    <div class="card-header" onclick="toggle(this)">
         <span class="title">📦 包装成本</span>
         <span class="arrow">▼</span>
     </div>
-    <div class="section-body">
+    <div class="card-body">
         <div class="form-row">
             <span class="form-label">每件重量</span>
             <div class="form-input-wrap">
                 <input type="number" id="weightPerPiece" class="form-input" value="10" step="0.5" oninput="calc()">
-                <span class="suffix">公斤/件</span>
+                <span class="suffix">公斤</span>
             </div>
         </div>
         <div class="form-row">
@@ -313,14 +426,14 @@
             </div>
         </div>
         <div class="form-row">
-            <span class="form-label">装箱人工费</span>
+            <span class="form-label">人工费</span>
             <div class="form-input-wrap">
                 <input type="number" id="packingLabor" class="form-input" value="2" step="0.5" oninput="calc()">
                 <span class="suffix">元/件</span>
             </div>
         </div>
         <div class="form-row">
-            <span class="form-label">包装材料费</span>
+            <span class="form-label">材料费</span>
             <div class="form-input-wrap">
                 <input type="number" id="packingMaterial" class="form-input" value="5" step="0.5" oninput="calc()">
                 <span class="suffix">元/件</span>
@@ -341,27 +454,27 @@
             </div>
         </div>
         <div class="form-row">
-            <span class="form-label">短途运输预留</span>
+            <span class="form-label">运输预留</span>
             <div class="form-input-wrap">
                 <input type="number" id="shortTransport" class="form-input" value="200" step="10" oninput="calc()">
                 <span class="suffix">元</span>
             </div>
         </div>
         <div class="sub-result">
-            <div class="line">包装小计：<span id="packingSubtotal">11,180.00</span> 元</div>
+            <div class="line"><span>包装小计</span><span id="packingSubtotal">11,180.00 元</span></div>
         </div>
     </div>
 </div>
 
-<!-- ========== 国内物流码头费 ========== -->
-<div class="section">
-    <div class="section-header" onclick="toggle(this)">
-        <span class="title">🚛 国内物流 &amp; 码头费</span>
+<!-- ===== 物流 & 码头费 ===== -->
+<div class="card">
+    <div class="card-header" onclick="toggle(this)">
+        <span class="title">🚛 物流 &amp; 码头费</span>
         <span class="arrow">▼</span>
     </div>
-    <div class="section-body" id="logisticsSection">
-        <div class="form-row" id="logisticsTruckRow">
-            <span class="form-label">拖车/国内运输</span>
+    <div class="card-body" id="logisticsSection">
+        <div class="form-row">
+            <span class="form-label">拖车/运输</span>
             <div class="form-input-wrap">
                 <input type="number" id="truckFee" class="form-input" value="2900" step="100" oninput="calc()">
                 <span class="suffix">元</span>
@@ -382,14 +495,14 @@
             </div>
         </div>
         <div class="form-row">
-            <span class="form-label">THC（港口操作费）</span>
+            <span class="form-label">THC操作费</span>
             <div class="form-input-wrap">
                 <input type="number" id="thcFee" class="form-input" value="1050" step="10" oninput="calc()">
                 <span class="suffix">元</span>
             </div>
         </div>
         <div class="form-row">
-            <span class="form-label">DOC（文件费）</span>
+            <span class="form-label">文件DOC</span>
             <div class="form-input-wrap">
                 <input type="number" id="docFee" class="form-input" value="500" step="10" oninput="calc()">
                 <span class="suffix">元</span>
@@ -402,7 +515,7 @@
                 <span class="suffix">元</span>
             </div>
         </div>
-        <div class="form-row" id="logisticsOtherRow">
+        <div class="form-row">
             <span class="form-label">其他杂费</span>
             <div class="form-input-wrap">
                 <input type="number" id="otherPortFee" class="form-input" value="545" step="10" oninput="calc()">
@@ -410,74 +523,69 @@
             </div>
         </div>
         <div class="sub-result">
-            <div class="line">物流小计：<span id="logisticsSubtotal">5,775.00</span> 元</div>
+            <div class="line"><span>物流小计</span><span id="logisticsSubtotal">5,775.00 元</span></div>
         </div>
-        <div class="note-text">整柜默认显示拖车费等，拼柜模式将自动切换为按吨计算的物流费用</div>
     </div>
 </div>
 
-<!-- ========== 办证和检测费 ========== -->
-<div class="section">
-    <div class="section-header" onclick="toggle(this)">
-        <span class="title">📄 办证 &amp; 检测费</span>
+<!-- ===== 办证 & 检测 ===== -->
+<div class="card">
+    <div class="card-header" onclick="toggle(this)">
+        <span class="title">📄 办证 &amp; 检测</span>
         <span class="arrow">▼</span>
     </div>
-    <div class="section-body">
-        <div class="form-row">
-            <span class="form-label">植检证</span>
-            <div class="form-input-wrap">
-                <input type="number" id="phytoCert" class="form-input" value="150" step="10" oninput="calc()">
-                <span class="suffix">元</span>
+    <div class="card-body">
+        <div class="inline-row" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div class="form-row">
+                <span class="form-label form-label-sm">植检证</span>
+                <div class="form-input-wrap">
+                    <input type="number" id="phytoCert" class="form-input" value="150" step="10" oninput="calc()">
+                </div>
             </div>
-        </div>
-        <div class="form-row">
-            <span class="form-label">产地证</span>
-            <div class="form-input-wrap">
-                <input type="number" id="coCert" class="form-input" value="100" step="10" oninput="calc()">
-                <span class="suffix">元</span>
+            <div class="form-row">
+                <span class="form-label form-label-sm">产地证</span>
+                <div class="form-input-wrap">
+                    <input type="number" id="coCert" class="form-input" value="100" step="10" oninput="calc()">
+                </div>
             </div>
-        </div>
-        <div class="form-row">
-            <span class="form-label">健康证</span>
-            <div class="form-input-wrap">
-                <input type="number" id="healthCert" class="form-input" value="150" step="10" oninput="calc()">
-                <span class="suffix">元</span>
+            <div class="form-row">
+                <span class="form-label form-label-sm">健康证</span>
+                <div class="form-input-wrap">
+                    <input type="number" id="healthCert" class="form-input" value="150" step="10" oninput="calc()">
+                </div>
             </div>
-        </div>
-        <div class="form-row">
-            <span class="form-label">熏蒸证</span>
-            <div class="form-input-wrap">
-                <input type="number" id="fumiCert" class="form-input" value="150" step="10" oninput="calc()">
-                <span class="suffix">元</span>
+            <div class="form-row">
+                <span class="form-label form-label-sm">熏蒸证</span>
+                <div class="form-input-wrap">
+                    <input type="number" id="fumiCert" class="form-input" value="150" step="10" oninput="calc()">
+                </div>
             </div>
-        </div>
-        <div class="form-row">
-            <span class="form-label">熏蒸作业费</span>
-            <div class="form-input-wrap">
-                <input type="number" id="fumiFee" class="form-input" value="1160" step="10" oninput="calc()">
-                <span class="suffix">元</span>
+            <div class="form-row">
+                <span class="form-label form-label-sm">熏蒸作业</span>
+                <div class="form-input-wrap">
+                    <input type="number" id="fumiFee" class="form-input" value="1160" step="10" oninput="calc()">
+                </div>
             </div>
-        </div>
-        <div class="form-row">
-            <span class="form-label">检测费</span>
-            <div class="form-input-wrap">
-                <input type="number" id="testFee" class="form-input" value="390" step="10" oninput="calc()">
-                <span class="suffix">元</span>
+            <div class="form-row">
+                <span class="form-label form-label-sm">检测费</span>
+                <div class="form-input-wrap">
+                    <input type="number" id="testFee" class="form-input" value="390" step="10" oninput="calc()">
+                </div>
             </div>
         </div>
         <div class="sub-result">
-            <div class="line">办证检测小计：<span id="certSubtotal">2,100.00</span> 元</div>
+            <div class="line"><span>办证检测小计</span><span id="certSubtotal">2,100.00 元</span></div>
         </div>
     </div>
 </div>
 
-<!-- ========== 海运 & 保险 ========== -->
-<div class="section">
-    <div class="section-header" onclick="toggle(this)">
+<!-- ===== 海运 & 保险 ===== -->
+<div class="card">
+    <div class="card-header" onclick="toggle(this)">
         <span class="title">🚢 海运 &amp; 保险</span>
         <span class="arrow">▼</span>
     </div>
-    <div class="section-body">
+    <div class="card-body">
         <div class="form-row">
             <span class="form-label">海运费</span>
             <div class="form-input-wrap">
@@ -507,19 +615,19 @@
             </div>
         </div>
         <div class="sub-result">
-            <div class="line">海运费（RMB）：<span id="oceanFreightRMB">8,512.50</span> 元</div>
-            <div class="line">海运保险小计：<span id="shippingSubtotal">10,336.64</span> 元</div>
+            <div class="line"><span>海运费（RMB）</span><span id="oceanFreightRMB">8,512.50 元</span></div>
+            <div class="line"><span>海运保险小计</span><span id="shippingSubtotal">10,336.64 元</span></div>
         </div>
     </div>
 </div>
 
-<!-- ========== 利润 & 汇率 ========== -->
-<div class="section">
-    <div class="section-header" onclick="toggle(this)">
+<!-- ===== 利润 & 汇率 ===== -->
+<div class="card">
+    <div class="card-header" onclick="toggle(this)">
         <span class="title">📈 利润 &amp; 汇率</span>
         <span class="arrow">▼</span>
     </div>
-    <div class="section-body">
+    <div class="card-body">
         <div class="form-row">
             <span class="form-label">目标利润率</span>
             <div class="form-input-wrap">
@@ -542,18 +650,18 @@
             </div>
         </div>
         <div class="sub-result">
-            <div class="line">汇率差带来的总报价差：<span id="rateDiffAmount">0.00</span> 元</div>
+            <div class="line"><span>汇率差报价差</span><span id="rateDiffAmount">0.00 元</span></div>
         </div>
     </div>
 </div>
 
-<!-- ========== 退税信息 ========== -->
-<div class="section">
-    <div class="section-header" onclick="toggle(this)">
+<!-- ===== 退税 ===== -->
+<div class="card">
+    <div class="card-header" onclick="toggle(this)">
         <span class="title">🏷️ 退税金额</span>
         <span class="arrow">▼</span>
     </div>
-    <div class="section-body">
+    <div class="card-body">
         <div class="form-row">
             <span class="form-label">当月首日汇率</span>
             <div class="form-input-wrap">
@@ -569,21 +677,21 @@
             </div>
         </div>
         <div class="sub-result">
-            <div class="line">退税基数FOB(USD)：<span id="rebateBaseUSD">0.00</span></div>
-            <div class="line">退税基数FOB(RMB)：<span id="rebaseBaseRMB">0.00</span> 元</div>
-            <div class="line">可退税上限：<span id="maxRebate">0.00</span> 元</div>
-            <div class="line">合规退税金额：<span id="compliantRebate">0.00</span> 元</div>
+            <div class="line"><span>退税基数FOB(USD)</span><span id="rebateBaseUSD">0.00</span></div>
+            <div class="line"><span>退税基数FOB(RMB)</span><span id="rebaseBaseRMB">0.00 元</span></div>
+            <div class="line"><span>可退税上限</span><span id="maxRebate">0.00 元</span></div>
+            <div class="line"><span>合规退税金额</span><span id="compliantRebate">0.00 元</span></div>
         </div>
     </div>
 </div>
 
-<!-- ========== 定金 & 尾款 ========== -->
-<div class="section">
-    <div class="section-header" onclick="toggle(this)">
+<!-- ===== 定金 & 尾款 ===== -->
+<div class="card">
+    <div class="card-header" onclick="toggle(this)">
         <span class="title">💳 定金 &amp; 尾款</span>
         <span class="arrow">▼</span>
     </div>
-    <div class="section-body">
+    <div class="card-body">
         <div class="form-row">
             <span class="form-label">定金比例</span>
             <div class="form-input-wrap">
@@ -592,137 +700,123 @@
             </div>
         </div>
         <div class="sub-result">
-            <div class="line">应收定金：<span id="depositUSD">0.00</span> USD</div>
-            <div class="line">应收尾款：<span id="balanceUSD">0.00</span> USD</div>
+            <div class="line"><span>应收定金</span><span id="depositUSD">0.00 USD</span></div>
+            <div class="line"><span>应收尾款</span><span id="balanceUSD">0.00 USD</span></div>
         </div>
     </div>
 </div>
 
-<div class="btn-reset" onclick="resetToDefaults()">🔄 重置为默认值</div>
+<button class="btn-outline" onclick="resetToDefaults()">🔄 重置为默认值</button>
 
 </div><!-- /tab-input -->
 
+<!-- ===== 结果概览 ===== -->
 <div id="tab-result" class="tab-content">
 
-<div class="section section-highlight">
-    <div class="section-header" onclick="toggle(this)">
-        <span class="title">🎯 最终报价结果</span>
-        <span class="arrow open">▼</span>
+    <div class="result-hero">
+        <div class="label">USD 报价单价</div>
+        <div class="value"><span class="currency">$</span><span id="resultUnitPriceUSDperKg">--.--</span></div>
+        <div class="sub-value">美元 / 公斤</div>
     </div>
-    <div class="section-body open highlight">
-        <div class="result-grid">
-            <div class="result-item full">
-                <div class="label">USD 单价</div>
-                <div class="value usd" id="resultUnitPriceUSDperKg">--.--</div>
-                <div class="sub-value">美元 / 公斤</div>
-            </div>
-            <div class="result-item">
-                <div class="label">总价（RMB）</div>
-                <div class="value rmb" id="resultTotalRMB">--.--</div>
-                <div class="sub-value">元</div>
-            </div>
-            <div class="result-item">
-                <div class="label">总价（USD）</div>
-                <div class="value usd" id="resultTotalUSD">--.--</div>
-                <div class="sub-value">美元</div>
-            </div>
-            <div class="result-item">
-                <div class="label">单价（USD/吨）</div>
-                <div class="value usd" id="resultUnitPriceUSD">--.--</div>
-                <div class="sub-value">美元 / 吨</div>
-            </div>
-            <div class="result-item">
-                <div class="label">经营利润（含9%退税）</div>
-                <div class="value" id="resultProfit" style="color:#2e7d32;">--.--</div>
-                <div class="sub-value">元</div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="section">
-    <div class="section-header" onclick="toggle(this)">
-        <span class="title">📊 成本构成明细</span>
-        <span class="arrow">▼</span>
-    </div>
-    <div class="section-body">
-        <div class="sub-result">
-            <div class="line">💰 采购成本：<span id="detailProcurement">0.00</span> 元</div>
-            <div class="line">📦 包装成本：<span id="detailPacking">0.00</span> 元</div>
-            <div class="line">🚛 物流码头费：<span id="detailLogistics">0.00</span> 元</div>
-            <div class="line">📄 办证检测费：<span id="detailCert">0.00</span> 元</div>
-            <div class="line">🚢 海运保险：<span id="detailShipping">0.00</span> 元</div>
-            <div class="line" style="border-top:1px dashed #ddd;padding-top:4px;margin-top:4px;font-weight:600;">
-                📋 不含税成本总价：<span id="detailTotalCostNoTax">0.00</span> 元
-            </div>
-            <div class="line">
-                📋 含税成本总价：<span id="detailTotalCostWithTax">0.00</span> 元
-            </div>
-            <div class="line" style="color:#888;">
-                税差：<span id="detailTaxDiff">0.00</span> 元
-            </div>
+    <div class="result-grid">
+        <div class="result-item">
+            <div class="label">总价（RMB）</div>
+            <div class="value rmb" id="resultTotalRMB">--.--</div>
+            <div class="sub-value">元</div>
+        </div>
+        <div class="result-item">
+            <div class="label">总价（USD）</div>
+            <div class="value usd" id="resultTotalUSD">--.--</div>
+            <div class="sub-value">美元</div>
+        </div>
+        <div class="result-item">
+            <div class="label">USD 单价 / 吨</div>
+            <div class="value usd" id="resultUnitPriceUSD">--.--</div>
+            <div class="sub-value">美元 / 吨</div>
+        </div>
+        <div class="result-item">
+            <div class="label">利润（含9%退税）</div>
+            <div class="value" id="resultProfit" style="color:#059669;">--.--</div>
+            <div class="sub-value">元</div>
         </div>
     </div>
-</div>
 
-<div class="section">
-    <div class="section-header" onclick="toggle(this)">
-        <span class="title">ℹ️ 使用说明</span>
-        <span class="arrow">▼</span>
-    </div>
-    <div class="section-body">
-        <div class="note-text" style="color:#666;">
-            <p>1. 蓝色字体为可变数值，根据实际业务情况修改</p>
-            <p>2. 默认值基于八角出口马来西亚（40HQ整柜）场景</p>
-            <p>3. 切换产品会自动加载对应的默认参数</p>
-            <p>4. 所有金额自动计算，修改任意参数结果实时更新</p>
-            <p>5. 本工具仅供报价参考，实际业务以具体情况为准</p>
-            <p style="margin-top:8px;color:#999;">数据来源：玉林福达国际贸易出口贸易成本测算模型</p>
+    <div class="card">
+        <div class="card-header" onclick="toggle(this)">
+            <span class="title">📊 成本构成明细</span>
+            <span class="arrow">▼</span>
+        </div>
+        <div class="card-body open">
+            <div class="sub-result">
+                <div class="line"><span>💰 采购成本</span><span id="detailProcurement">0.00 元</span></div>
+                <div class="line"><span>📦 包装成本</span><span id="detailPacking">0.00 元</span></div>
+                <div class="line"><span>🚛 物流码头费</span><span id="detailLogistics">0.00 元</span></div>
+                <div class="line"><span>📄 办证检测费</span><span id="detailCert">0.00 元</span></div>
+                <div class="line"><span>🚢 海运保险</span><span id="detailShipping">0.00 元</span></div>
+                <div class="line" style="border-top:1px dashed var(--border);padding-top:4px;margin-top:4px;font-weight:600;"><span>不含税成本总价</span><span id="detailTotalCostNoTax">0.00 元</span></div>
+                <div class="line"><span>含税成本总价</span><span id="detailTotalCostWithTax">0.00 元</span></div>
+                <div class="line" style="color:var(--text-secondary);"><span>税差</span><span id="detailTaxDiff">0.00 元</span></div>
+            </div>
         </div>
     </div>
-</div>
 
-<div class="section">
-    <div class="section-header" onclick="toggle(this)">
-        <span class="title">🔐 密码设置</span>
-        <span class="arrow">▼</span>
+    <div class="card">
+        <div class="card-header" onclick="toggle(this)">
+            <span class="title">ℹ️ 使用说明</span>
+            <span class="arrow">▼</span>
+        </div>
+        <div class="card-body">
+            <div class="note-text">
+                <p>1. 可变数值根据实际业务情况修改</p>
+                <p>2. 默认值基于八角出口马来西亚（40HQ）场景</p>
+                <p>3. 切换产品自动加载对应的默认参数</p>
+                <p>4. 所有金额自动计算，实时更新</p>
+                <p>5. 仅供报价参考，实际以具体情况为准</p>
+                <p style="margin-top:8px;color:#9ca3af;">玉林福达国际贸易出口贸易成本测算模型</p>
+            </div>
+        </div>
     </div>
-    <div class="section-body">
-        <p style="font-size:12px;color:#999;margin-bottom:10px;">修改访问密码（修改后下次访问时生效）</p>
-        <div class="form-row">
-            <span class="form-label">当前密码</span>
-            <div class="form-input-wrap">
-                <input type="password" id="oldPwdInput" class="form-input" placeholder="输入当前密码">
-            </div>
+
+    <div class="card">
+        <div class="card-header" onclick="toggle(this)">
+            <span class="title">🔐 密码设置</span>
+            <span class="arrow">▼</span>
         </div>
-        <div class="form-row">
-            <span class="form-label">新密码</span>
-            <div class="form-input-wrap">
-                <input type="password" id="newPwdInput" class="form-input" placeholder="输入新密码">
+        <div class="card-body">
+            <p style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;">修改后下次访问时生效</p>
+            <div class="form-row">
+                <span class="form-label form-label-sm">当前密码</span>
+                <div class="form-input-wrap">
+                    <input type="password" id="oldPwdInput" class="form-input" placeholder="输入当前密码">
+                </div>
             </div>
-        </div>
-        <div class="form-row">
-            <span class="form-label">确认新密码</span>
-            <div class="form-input-wrap">
-                <input type="password" id="confirmPwdInput" class="form-input" placeholder="再次输入新密码">
+            <div class="form-row">
+                <span class="form-label form-label-sm">新密码</span>
+                <div class="form-input-wrap">
+                    <input type="password" id="newPwdInput" class="form-input" placeholder="输入新密码">
+                </div>
             </div>
+            <div class="form-row">
+                <span class="form-label form-label-sm">确认新密码</span>
+                <div class="form-input-wrap">
+                    <input type="password" id="confirmPwdInput" class="form-input" placeholder="再次输入">
+                </div>
+            </div>
+            <button class="btn-primary" onclick="changePassword()">修改密码</button>
+            <div class="msg" id="pwdMsg"></div>
         </div>
-        <button onclick="changePassword()"
-                style="width:100%;height:38px;background:#1a3a5c;color:#fff;border:none;border-radius:8px;font-size:14px;margin-top:6px;cursor:pointer;">
-            修改密码
-        </button>
-        <div id="pwdMsg" style="font-size:12px;margin-top:8px;text-align:center;"></div>
     </div>
-</div>
 
 </div><!-- /tab-result -->
+
+</div><!-- /mainApp -->
 
 <script>
 // =================== 默认参数配置 ===================
 const DEFAULTS = {
     '八角': {
-        hsCode: '0909611000',
-        nakedPrice: 30, invoiceTaxRate: 9, actualTaxRate: 3,
+        hsCode: '0909611000', nakedPrice: 30, invoiceTaxRate: 9, actualTaxRate: 3,
         quantity40: 16000, quantity20: 7000, quantityLCL: 2000,
         weightPerPiece: 10, pieceCount40: 1220, pieceCount20: 530, pieceCountLCL: 210,
         packingLabor: 2, packingMaterial: 5, labelCost: 1, loadingFee: 1, shortTransport: 200,
@@ -737,8 +831,7 @@ const DEFAULTS = {
         tradeTerm: 'CIF', containerType: '40HQ'
     },
     '桂皮': {
-        hsCode: '0906190000',
-        nakedPrice: 22.5, invoiceTaxRate: 9, actualTaxRate: 3,
+        hsCode: '0906190000', nakedPrice: 22.5, invoiceTaxRate: 9, actualTaxRate: 3,
         quantity40: 12000, quantity20: 5500, quantityLCL: 2000,
         weightPerPiece: 10, pieceCount40: 1220, pieceCount20: 550, pieceCountLCL: 210,
         packingLabor: 3, packingMaterial: 7.6, labelCost: 1, loadingFee: 1, shortTransport: 200,
@@ -753,8 +846,7 @@ const DEFAULTS = {
         tradeTerm: 'CIF', containerType: '40HQ'
     },
     '干姜': {
-        hsCode: '0910110000',
-        nakedPrice: 14, invoiceTaxRate: 9, actualTaxRate: 3,
+        hsCode: '0910110000', nakedPrice: 14, invoiceTaxRate: 9, actualTaxRate: 3,
         quantity40: 12000, quantity20: 5500, quantityLCL: 2000,
         weightPerPiece: 10, pieceCount40: 1220, pieceCount20: 550, pieceCountLCL: 210,
         packingLabor: 2, packingMaterial: 6, labelCost: 1, loadingFee: 1, shortTransport: 200,
@@ -770,127 +862,79 @@ const DEFAULTS = {
     }
 };
 
-// =================== DOM 引用 ===================
 const $ = id => document.getElementById(id);
-const getVal = (id) => parseFloat($(id).value) || 0;
+const getVal = id => parseFloat($(id).value) || 0;
 const fmt = (n, d) => {
     if (isNaN(n) || n === Infinity || n === -Infinity) return '--';
     return n.toLocaleString('zh-CN', { minimumFractionDigits: d||2, maximumFractionDigits: d||2 });
 };
 
-// =================== 切换折叠 ===================
 function toggle(el) {
-    const body = el.parentElement.querySelector('.section-body');
+    const body = el.parentElement.querySelector('.card-body');
     const arrow = el.querySelector('.arrow');
     body.classList.toggle('open');
-    if (arrow) arrow.classList.toggle('open');
+    arrow.classList.toggle('open');
 }
 
-// =================== 柜型变化 ===================
 function onContainerChange() {
-    const ct = $(`containerType`).value;
-    const product = $(`productName`).value;
+    const ct = $('containerType').value;
+    const product = $('productName').value;
     const defs = DEFAULTS[product];
     if (!defs) return;
-
     let qty, pcs, freight;
-    if (ct === '40HQ') {
-        qty = defs.quantity40 || 16000;
-        pcs = defs.pieceCount40 || 1220;
-        freight = defs.oceanFreight40 || 1250;
-    } else if (ct === '20GP') {
-        qty = defs.quantity20 || 7000;
-        pcs = defs.pieceCount20 || 530;
-        freight = defs.oceanFreight20 || 800;
-    } else {
-        qty = defs.quantityLCL || 2000;
-        pcs = defs.pieceCountLCL || 210;
-        freight = defs.oceanFreightLCL || 800;
-    }
-    $(`quantity`).value = qty;
-    $(`pieceCount`).value = pcs;
-    $(`oceanFreight`).value = freight;
-
-    // 拼柜模式切换物流费用
+    if (ct === '40HQ') { qty = defs.quantity40||16000; pcs = defs.pieceCount40||1220; freight = defs.oceanFreight40||1250; }
+    else if (ct === '20GP') { qty = defs.quantity20||7000; pcs = defs.pieceCount20||530; freight = defs.oceanFreight20||800; }
+    else { qty = defs.quantityLCL||2000; pcs = defs.pieceCountLCL||210; freight = defs.oceanFreightLCL||800; }
+    $('quantity').value = qty;
+    $('pieceCount').value = pcs;
+    $('oceanFreight').value = freight;
     if (ct === 'LCL') {
-        $(`truckFee`).value = 1100;
-        $(`telexFee`).value = 500;
-        $(`customsFee`).value = 400;
-        $(`thcFee`).value = 0;
-        $(`docFee`).value = 450;
-        $(`sealFee`).value = 0;
-        $(`otherPortFee`).value = 130;
-        $(`fumiFee`).value = 200;
+        $('truckFee').value = 1100; $('telexFee').value = 500; $('customsFee').value = 400;
+        $('thcFee').value = 0; $('docFee').value = 450; $('sealFee').value = 0;
+        $('otherPortFee').value = 130; $('fumiFee').value = 200;
     } else {
-        $(`truckFee`).value = defs.truckFee || 2900;
-        $(`telexFee`).value = defs.telexFee || 450;
-        $(`customsFee`).value = defs.customsFee || 200;
-        $(`thcFee`).value = defs.thcFee || 1050;
-        $(`docFee`).value = defs.docFee || 500;
-        $(`sealFee`).value = defs.sealFee || 50;
-        $(`otherPortFee`).value = defs.otherPortFee || 545;
-        $(`fumiFee`).value = defs.fumiFee || 1160;
+        $('truckFee').value = defs.truckFee||2900; $('telexFee').value = defs.telexFee||450;
+        $('customsFee').value = defs.customsFee||200; $('thcFee').value = defs.thcFee||1050;
+        $('docFee').value = defs.docFee||500; $('sealFee').value = defs.sealFee||50;
+        $('otherPortFee').value = defs.otherPortFee||545; $('fumiFee').value = defs.fumiFee||1160;
     }
     calc();
 }
 
-// =================== 加载默认值 ===================
 function loadDefaults() {
-    const product = $(`productName`).value;
+    const product = $('productName').value;
     if (product === 'custom') return;
     const defs = DEFAULTS[product];
     if (!defs) return;
-
-    $(`hsCode`).value = defs.hsCode;
-    $(`nakedPrice`).value = defs.nakedPrice;
-    $(`invoiceTaxRate`).value = defs.invoiceTaxRate;
-    $(`actualTaxRate`).value = defs.actualTaxRate;
-    $(`weightPerPiece`).value = defs.weightPerPiece;
-    $(`packingLabor`).value = defs.packingLabor;
-    $(`packingMaterial`).value = defs.packingMaterial;
-    $(`labelCost`).value = defs.labelCost;
-    $(`loadingFee`).value = defs.loadingFee;
-    $(`shortTransport`).value = defs.shortTransport;
-    $(`telexFee`).value = defs.telexFee;
-    $(`customsFee`).value = defs.customsFee;
-    $(`thcFee`).value = defs.thcFee;
-    $(`docFee`).value = defs.docFee;
-    $(`sealFee`).value = defs.sealFee;
-    $(`otherPortFee`).value = defs.otherPortFee;
-    $(`phytoCert`).value = defs.phytoCert;
-    $(`coCert`).value = defs.coCert;
-    $(`healthCert`).value = defs.healthCert;
-    $(`fumiCert`).value = defs.fumiCert;
-    $(`testFee`).value = defs.testFee;
-    $(`estExchangeRate`).value = defs.estExchangeRate;
-    $(`profitRate`).value = defs.profitRate;
-    $(`centralRate`).value = defs.centralRate;
-    $(`lockedRate`).value = defs.lockedRate;
-    $(`monthStartRate`).value = defs.monthStartRate;
-    $(`taxRebateRate`).value = defs.taxRebateRate;
-    $(`depositRate`).value = defs.depositRate;
-    $(`importCountry`).value = defs.importCountry;
-    $(`portOfLoading`).value = defs.portOfLoading;
-    $(`portOfDestination`).value = defs.portOfDestination;
-    $(`tradeTerm`).value = defs.tradeTerm;
-    $(`containerType`).value = defs.containerType;
-
-    // 按柜型设数量
+    Object.keys(defs).forEach(k => {
+        const el = $(k); if (el && typeof defs[k] === 'string') el.value = defs[k];
+    });
+    $('nakedPrice').value = defs.nakedPrice;
+    $('invoiceTaxRate').value = defs.invoiceTaxRate;
+    $('actualTaxRate').value = defs.actualTaxRate;
+    $('weightPerPiece').value = defs.weightPerPiece;
+    $('packingLabor').value = defs.packingLabor;
+    $('packingMaterial').value = defs.packingMaterial;
+    $('labelCost').value = defs.labelCost;
+    $('loadingFee').value = defs.loadingFee;
+    $('shortTransport').value = defs.shortTransport;
+    $('estExchangeRate').value = defs.estExchangeRate;
+    $('profitRate').value = defs.profitRate;
+    $('centralRate').value = defs.centralRate;
+    $('lockedRate').value = defs.lockedRate;
+    $('monthStartRate').value = defs.monthStartRate;
+    $('taxRebateRate').value = defs.taxRebateRate;
+    $('depositRate').value = defs.depositRate;
     onContainerChange();
 }
-
-function resetToDefaults() {
-    loadDefaults();
-}
+function resetToDefaults() { loadDefaults(); }
 
 // =================== 核心计算 ===================
 function calc() {
-    // 读取输入
     const nakedPrice = getVal('nakedPrice');
     const invoiceTaxRate = getVal('invoiceTaxRate') / 100;
     const actualTaxRate = getVal('actualTaxRate') / 100;
     const quantity = getVal('quantity');
-    const weightPerPiece = getVal('weightPerPiece');
     const pieceCount = getVal('pieceCount');
     const packingLabor = getVal('packingLabor');
     const packingMaterial = getVal('packingMaterial');
@@ -919,163 +963,114 @@ function calc() {
     const monthStartRate = getVal('monthStartRate');
     const taxRebateRate = getVal('taxRebateRate') / 100;
     const depositRate = getVal('depositRate') / 100;
-    const tradeTerm = $(`tradeTerm`).value;
+    const tradeTerm = $('tradeTerm').value;
 
-    // --- 采购成本 ---
     const actualUnitPrice = nakedPrice * (1 + actualTaxRate);
     const invoiceUnitPrice = nakedPrice * (1 + invoiceTaxRate);
     const invoiceTotalWithTax = invoiceUnitPrice * quantity;
     const invoiceTotalWithoutTax = invoiceTotalWithTax / (1 + invoiceTaxRate);
-
-    // --- 包装成本 ---
     const packingSubtotal = (packingLabor + packingMaterial + labelCost + loadingFee) * pieceCount + shortTransport;
-
-    // --- 国内物流码头费 ---
     const logisticsSubtotal = truckFee + telexFee + customsFee + thcFee + docFee + sealFee + otherPortFee;
-
-    // --- 办证检测费 ---
     const certSubtotal = phytoCert + coCert + healthCert + fumiCert + fumiFee + testFee;
-
-    // --- 海运保险 ---
     const oceanFreightRMB = oceanFreight * estExchangeRate;
-
-    // 对于CIF: 保险 = CIF货值 × 110% × 费率
-    // 先估算一个CIF值用于算保险（不含利润的CIF）
     const costBeforeInsurance = invoiceTotalWithoutTax + packingSubtotal + logisticsSubtotal + certSubtotal + oceanFreightRMB;
-    let insuranceFee;
+    let insuranceFee = 0;
     if (tradeTerm === 'CIF') {
-        // 保险 = (成本+运费) × 110% × 费率，这里用不含利润的前置成本近似
         const approxCIF = costBeforeInsurance / (1 - 1.1 * insuranceRate);
         insuranceFee = approxCIF * 1.1 * insuranceRate;
-    } else {
-        insuranceFee = 0;
     }
     const shippingSubtotal = oceanFreightRMB + insuranceFee;
-
-    // --- 成本汇总 ---
     const totalCostNoTax = invoiceTotalWithoutTax + packingSubtotal + logisticsSubtotal + certSubtotal + shippingSubtotal;
     const totalCostWithTax = invoiceTotalWithTax + packingSubtotal + logisticsSubtotal + certSubtotal + shippingSubtotal;
     const taxDiff = totalCostWithTax - totalCostNoTax;
-
-    // --- 最终报价 ---
     const profitAmount = totalCostNoTax * profitRate;
     const finalTotalRMB = totalCostNoTax + profitAmount;
-    const finalUnitPriceRMB = finalTotalRMB / quantity;
-
-    // 汇率差
     const rateDiffAmount = finalTotalRMB * (centralRate - lockedRate);
-
     const finalTotalUSD = finalTotalRMB / lockedRate;
     const finalUnitPriceUSDPerKg = finalTotalUSD / quantity;
     const finalUnitPriceUSDPerTon = (finalTotalUSD / quantity) * 1000;
 
-    // --- 退税 ---
-    let rebateBaseUSD = 0, rebaseBaseRMB = 0, maxRebate = 0, compliantRebate = 0;
-    if (tradeTerm === 'CIF') {
-        rebateBaseUSD = (finalTotalRMB - shippingSubtotal) / lockedRate;
-    } else if (tradeTerm === 'CFR') {
-        rebateBaseUSD = (finalTotalRMB - oceanFreightRMB) / lockedRate;
-    } else {
-        rebateBaseUSD = finalTotalRMB / lockedRate;
-    }
-    rebaseBaseRMB = rebateBaseUSD * monthStartRate;
-    maxRebate = rebaseBaseRMB * taxRebateRate;
-    // 合规退税金额 = 实际缴纳的增值税部分
-    // 增值税 = 票面总价（含税）- 票面总价（不含税）
+    let rebateBaseUSD = 0;
+    if (tradeTerm === 'CIF') rebateBaseUSD = (finalTotalRMB - shippingSubtotal) / lockedRate;
+    else if (tradeTerm === 'CFR') rebateBaseUSD = (finalTotalRMB - oceanFreightRMB) / lockedRate;
+    else rebateBaseUSD = finalTotalRMB / lockedRate;
+    const rebaseBaseRMB = rebateBaseUSD * monthStartRate;
+    const maxRebate = rebaseBaseRMB * taxRebateRate;
     const vatPaid = invoiceTotalWithTax - invoiceTotalWithoutTax;
-    compliantRebate = Math.min(maxRebate, vatPaid);
-
-    // 含退税的总利润 = 经营利润 + 退税金额
+    const compliantRebate = Math.min(maxRebate, vatPaid);
     const totalProfitWithRebate = profitAmount + compliantRebate;
-
-    // --- 定金尾款 ---
     const depositUSD = finalTotalUSD * depositRate;
     const balanceUSD = finalTotalUSD * (1 - depositRate);
 
-    // =================== 更新UI ===================
-    // 采购成本小计
-    $(`actualUnitPrice`).textContent = fmt(actualUnitPrice, 2);
-    $(`invoiceTotalWithTax`).textContent = fmt(invoiceTotalWithTax, 2);
-    $(`invoiceTotalWithoutTax`).textContent = fmt(invoiceTotalWithoutTax, 0);
+    // --- 更新UI ---
+    $('actualUnitPrice').textContent = fmt(actualUnitPrice, 2) + ' 元/kg';
+    $('invoiceTotalWithTax').textContent = fmt(invoiceTotalWithTax, 2) + ' 元';
+    $('invoiceTotalWithoutTax').textContent = fmt(invoiceTotalWithoutTax, 0) + ' 元';
+    $('packingSubtotal').textContent = fmt(packingSubtotal, 2) + ' 元';
+    $('logisticsSubtotal').textContent = fmt(logisticsSubtotal, 2) + ' 元';
+    $('certSubtotal').textContent = fmt(certSubtotal, 2) + ' 元';
+    $('oceanFreightRMB').textContent = fmt(oceanFreightRMB, 2) + ' 元';
 
-    // 包装
-    $(`packingSubtotal`).textContent = fmt(packingSubtotal, 2);
-
-    // 物流
-    $(`logisticsSubtotal`).textContent = fmt(logisticsSubtotal, 2);
-
-    // 办证检测
-    $(`certSubtotal`).textContent = fmt(certSubtotal, 2);
-
-    // 海运
-    $(`oceanFreightRMB`).textContent = fmt(oceanFreightRMB, 2);
-    // 显示计算出的保险
-    const insuranceInput = $(`insuranceFee`);
+    const insInput = $('insuranceFee');
+    const insRow = $('insuranceRow');
+    const insRateRow = $('insuranceRateRow');
     if (tradeTerm === 'CIF') {
-        insuranceInput.value = Math.round(insuranceFee * 100) / 100;
-        $(`insuranceRow`).style.display = '';
-        $(`insuranceRateRow`).style.display = '';
+        insInput.value = Math.round(insuranceFee * 100) / 100;
+        insRow.style.display = ''; insRateRow.style.display = '';
     } else {
-        insuranceInput.value = 0;
-        $(`insuranceRow`).style.display = 'none';
-        $(`insuranceRateRow`).style.display = 'none';
+        insInput.value = 0; insRow.style.display = 'none'; insRateRow.style.display = 'none';
     }
-    $(`shippingSubtotal`).textContent = fmt(shippingSubtotal, 2);
+    $('shippingSubtotal').textContent = fmt(shippingSubtotal, 2) + ' 元';
+    $('rateDiffAmount').textContent = fmt(rateDiffAmount, 2) + ' 元';
 
-    // 汇率差
-    $(`rateDiffAmount`).textContent = fmt(rateDiffAmount, 2);
+    $('resultUnitPriceUSDperKg').textContent = fmt(finalUnitPriceUSDPerKg, 2);
+    $('resultTotalRMB').textContent = fmt(finalTotalRMB, 2);
+    $('resultTotalUSD').textContent = fmt(finalTotalUSD, 2);
+    $('resultUnitPriceUSD').textContent = fmt(finalUnitPriceUSDPerTon, 2);
+    $('resultProfit').textContent = fmt(totalProfitWithRebate, 2);
 
-    // --- 报价结果 ---
-    $(`resultUnitPriceUSDperKg`).textContent = fmt(finalUnitPriceUSDPerKg, 2);
-    $(`resultTotalRMB`).textContent = fmt(finalTotalRMB, 2);
-    $(`resultTotalUSD`).textContent = fmt(finalTotalUSD, 2);
-    $(`resultUnitPriceUSD`).textContent = fmt(finalUnitPriceUSDPerTon, 2);
-    $(`resultProfit`).textContent = fmt(totalProfitWithRebate, 2);
+    $('detailProcurement').textContent = fmt(invoiceTotalWithTax, 2) + ' 元';
+    $('detailPacking').textContent = fmt(packingSubtotal, 2) + ' 元';
+    $('detailLogistics').textContent = fmt(logisticsSubtotal, 2) + ' 元';
+    $('detailCert').textContent = fmt(certSubtotal, 2) + ' 元';
+    $('detailShipping').textContent = fmt(shippingSubtotal, 2) + ' 元';
+    $('detailTotalCostNoTax').textContent = fmt(totalCostNoTax, 2) + ' 元';
+    $('detailTotalCostWithTax').textContent = fmt(totalCostWithTax, 2) + ' 元';
+    $('detailTaxDiff').textContent = fmt(taxDiff, 2) + ' 元';
 
-    // --- 成本明细 ---
-    $(`detailProcurement`).textContent = fmt(invoiceTotalWithTax, 2);
-    $(`detailPacking`).textContent = fmt(packingSubtotal, 2);
-    $(`detailLogistics`).textContent = fmt(logisticsSubtotal, 2);
-    $(`detailCert`).textContent = fmt(certSubtotal, 2);
-    $(`detailShipping`).textContent = fmt(shippingSubtotal, 2);
-    $(`detailTotalCostNoTax`).textContent = fmt(totalCostNoTax, 2);
-    $(`detailTotalCostWithTax`).textContent = fmt(totalCostWithTax, 2);
-    $(`detailTaxDiff`).textContent = fmt(taxDiff, 2);
-
-    // --- 退税 ---
-    $(`rebateBaseUSD`).textContent = fmt(rebateBaseUSD, 2);
-    $(`rebaseBaseRMB`).textContent = fmt(rebaseBaseRMB, 2);
-    $(`maxRebate`).textContent = fmt(maxRebate, 2);
-    $(`compliantRebate`).textContent = fmt(compliantRebate, 2);
-
-    // --- 定金尾款 ---
-    $(`depositUSD`).textContent = fmt(depositUSD, 2);
-    $(`balanceUSD`).textContent = fmt(balanceUSD, 2);
+    $('rebateBaseUSD').textContent = fmt(rebateBaseUSD, 2);
+    $('rebaseBaseRMB').textContent = fmt(rebaseBaseRMB, 2) + ' 元';
+    $('maxRebate').textContent = fmt(maxRebate, 2) + ' 元';
+    $('compliantRebate').textContent = fmt(compliantRebate, 2) + ' 元';
+    $('depositUSD').textContent = fmt(depositUSD, 2) + ' USD';
+    $('balanceUSD').textContent = fmt(balanceUSD, 2) + ' USD';
 }
 
 // =================== 密码保护 ===================
-const DEFAULT_PASSWORD = '8888';  // 默认密码，首次使用时设置
+const DEFAULT_PASSWORD = '8888';
 
 function initPasswordScreen() {
-    // 如果已经认证通过（session内），直接进
+    const login = document.getElementById('loginScreen');
+    const app = document.getElementById('mainApp');
     if (sessionStorage.getItem('auth_ok') === '1') {
-        showApp();
+        login.style.display = 'none'; app.style.display = 'block';
+        setTimeout(() => { loadDefaults(); calc(); }, 100);
         return;
     }
-    // 显示密码锁
-    document.getElementById('loginScreen').style.display = 'block';
-    document.getElementById('mainApp').style.display = 'none';
+    login.style.display = 'flex'; app.style.display = 'none';
     document.getElementById('accessPassword').value = '';
     document.getElementById('passwordError').style.display = 'none';
-    document.getElementById('accessPassword').focus();
+    setTimeout(() => document.getElementById('accessPassword').focus(), 200);
 }
 
 function checkPassword() {
     const pwd = document.getElementById('accessPassword').value;
-    const savedPwd = localStorage.getItem('calc_password') || DEFAULT_PASSWORD;
-    if (pwd === savedPwd) {
+    const saved = localStorage.getItem('calc_password') || DEFAULT_PASSWORD;
+    if (pwd === saved) {
         sessionStorage.setItem('auth_ok', '1');
-        showApp();
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
+        setTimeout(() => { loadDefaults(); calc(); }, 100);
     } else {
         document.getElementById('passwordError').style.display = 'block';
         document.getElementById('accessPassword').value = '';
@@ -1083,45 +1078,23 @@ function checkPassword() {
     }
 }
 
-function showApp() {
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('mainApp').style.display = 'block';
-    // 延迟一下等主界面渲染完毕后初始化
-    setTimeout(() => { loadDefaults(); calc(); }, 100);
-}
-
 function changePassword() {
-    const oldPwd = document.getElementById('oldPwdInput').value;
-    const newPwd = document.getElementById('newPwdInput').value;
-    const confirmPwd = document.getElementById('confirmPwdInput').value;
+    const old = document.getElementById('oldPwdInput').value;
+    const np = document.getElementById('newPwdInput').value;
+    const cf = document.getElementById('confirmPwdInput').value;
     const msg = document.getElementById('pwdMsg');
-    const savedPwd = localStorage.getItem('calc_password') || DEFAULT_PASSWORD;
-
-    if (oldPwd !== savedPwd) {
-        msg.style.color = '#e53935';
-        msg.textContent = '❌ 当前密码错误';
-        return;
-    }
-    if (newPwd.length < 4) {
-        msg.style.color = '#e53935';
-        msg.textContent = '❌ 密码至少4位';
-        return;
-    }
-    if (newPwd !== confirmPwd) {
-        msg.style.color = '#e53935';
-        msg.textContent = '❌ 两次密码不一致';
-        return;
-    }
-
-    localStorage.setItem('calc_password', newPwd);
+    const saved = localStorage.getItem('calc_password') || DEFAULT_PASSWORD;
+    if (old !== saved) { msg.style.color = '#e74c3c'; msg.textContent = '❌ 当前密码错误'; return; }
+    if (np.length < 4) { msg.style.color = '#e74c3c'; msg.textContent = '❌ 密码至少4位'; return; }
+    if (np !== cf) { msg.style.color = '#e74c3c'; msg.textContent = '❌ 两次密码不一致'; return; }
+    localStorage.setItem('calc_password', np);
     document.getElementById('oldPwdInput').value = '';
     document.getElementById('newPwdInput').value = '';
     document.getElementById('confirmPwdInput').value = '';
-    msg.style.color = '#2e7d32';
-    msg.textContent = '✅ 密码修改成功！下次访问时生效';
+    msg.style.color = '#27ae60'; msg.textContent = '✅ 密码修改成功！';
 }
 
-// =================== Tab 切换 ===================
+// =================== Tab切换 ===================
 document.getElementById('tabBar').addEventListener('click', function(e) {
     const tab = e.target.closest('.tab');
     if (!tab) return;
@@ -1131,15 +1104,7 @@ document.getElementById('tabBar').addEventListener('click', function(e) {
     document.getElementById(tab.dataset.tab).classList.add('active');
 });
 
-// =================== 自动计算保险 ===================
-// 当用户手动修改保险时，关闭自动计算
-// 双击保险输入框可恢复自动计算
-$(`insuranceFee`).addEventListener('input', function() {
-    // 用户手动输入时，已通过calc中覆盖，无需额外操作
-});
-
 // =================== 初始化 ===================
-// 从密码锁开始
 initPasswordScreen();
 </script>
 
