@@ -632,7 +632,7 @@
                 <div class="sub-value">美元 / 吨</div>
             </div>
             <div class="result-item">
-                <div class="label">经营利润</div>
+                <div class="label">经营利润（含9%退税）</div>
                 <div class="value" id="resultProfit" style="color:#2e7d32;">--.--</div>
                 <div class="sub-value">元</div>
             </div>
@@ -985,6 +985,9 @@ function calc() {
     const vatPaid = invoiceTotalWithTax - invoiceTotalWithoutTax;
     compliantRebate = Math.min(maxRebate, vatPaid);
 
+    // 含退税的总利润 = 经营利润 + 退税金额
+    const totalProfitWithRebate = profitAmount + compliantRebate;
+
     // --- 定金尾款 ---
     const depositUSD = finalTotalUSD * depositRate;
     const balanceUSD = finalTotalUSD * (1 - depositRate);
@@ -1027,7 +1030,7 @@ function calc() {
     $(`resultTotalRMB`).textContent = fmt(finalTotalRMB, 2);
     $(`resultTotalUSD`).textContent = fmt(finalTotalUSD, 2);
     $(`resultUnitPriceUSD`).textContent = fmt(finalUnitPriceUSDPerTon, 2);
-    $(`resultProfit`).textContent = fmt(profitAmount, 2);
+    $(`resultProfit`).textContent = fmt(totalProfitWithRebate, 2);
 
     // --- 成本明细 ---
     $(`detailProcurement`).textContent = fmt(invoiceTotalWithTax, 2);
