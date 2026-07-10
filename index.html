@@ -663,13 +663,6 @@
     </div>
     <div class="card-body">
         <div class="form-row">
-            <span class="form-label">当月首日汇率</span>
-            <div class="form-input-wrap">
-                <input type="number" id="monthStartRate" class="form-input" value="6.8067" step="0.0001" oninput="calc()">
-                <span class="suffix">CNY/USD</span>
-            </div>
-        </div>
-        <div class="form-row">
             <span class="form-label">退税率</span>
             <div class="form-input-wrap">
                 <input type="number" id="taxRebateRate" class="form-input" value="9" step="0.5" oninput="calc()">
@@ -677,10 +670,9 @@
             </div>
         </div>
         <div class="sub-result">
-            <div class="line"><span>退税基数FOB(USD)</span><span id="rebateBaseUSD">0.00</span></div>
-            <div class="line"><span>退税基数FOB(RMB)</span><span id="rebaseBaseRMB">0.00 元</span></div>
+            <div class="line"><span>退税基数（采购成本不含税）</span><span id="rebateBaseRMB">0.00 元</span></div>
             <div class="line"><span>可退税上限</span><span id="maxRebate">0.00 元</span></div>
-            <div class="line"><span>合规退税金额</span><span id="compliantRebate">0.00 元</span></div>
+            <div class="line"><span>实际退税金额</span><span id="compliantRebate">0.00 元</span></div>
         </div>
     </div>
 </div>
@@ -841,7 +833,6 @@ const DEFAULTS = {
         oceanFreight40: 1250, oceanFreight20: 800, oceanFreightLCL: 800,
         estExchangeRate: 6.81, insuranceRate: 3, insuranceFeeAuto: true,
         profitRate: 4, centralRate: 6.8066, lockedRate: 6.7966,
-        monthStartRate: 6.8067, taxRebateRate: 9, depositRate: 30,
         importCountry: '马来西亚', portOfLoading: '钦州', portOfDestination: '巴生西',
         tradeTerm: 'CIF', containerType: '40HQ'
     },
@@ -856,7 +847,7 @@ const DEFAULTS = {
         oceanFreight40: 1250, oceanFreight20: 800, oceanFreightLCL: 800,
         estExchangeRate: 6.81, insuranceRate: 3, insuranceFeeAuto: true,
         profitRate: 5, centralRate: 6.8066, lockedRate: 6.7966,
-        monthStartRate: 6.8067, taxRebateRate: 0, depositRate: 30,
+        taxRebateRate: 0, depositRate: 30,
         importCountry: '马来西亚', portOfLoading: '钦州', portOfDestination: '巴生西',
         tradeTerm: 'CIF', containerType: '40HQ'
     }
@@ -922,7 +913,6 @@ function loadDefaults() {
     $('profitRate').value = defs.profitRate;
     $('centralRate').value = defs.centralRate;
     $('lockedRate').value = defs.lockedRate;
-    $('monthStartRate').value = defs.monthStartRate;
     $('taxRebateRate').value = defs.taxRebateRate;
     $('depositRate').value = defs.depositRate;
     onContainerChange();
@@ -960,7 +950,6 @@ function calc() {
     const profitRate = getVal('profitRate') / 100;
     const centralRate = getVal('centralRate');
     const lockedRate = getVal('lockedRate');
-    const monthStartRate = getVal('monthStartRate');
     const taxRebateRate = getVal('taxRebateRate') / 100;
     const depositRate = getVal('depositRate') / 100;
     const tradeTerm = $('tradeTerm').value;
@@ -990,12 +979,10 @@ function calc() {
     const finalUnitPriceUSDPerKg = finalTotalUSD / quantity;
     const finalUnitPriceUSDPerTon = (finalTotalUSD / quantity) * 1000;
 
-    let rebateBaseUSD = 0;
-    if (tradeTerm === 'CIF') rebateBaseUSD = (finalTotalRMB - shippingSubtotal) / lockedRate;
-    else if (tradeTerm === 'CFR') rebateBaseUSD = (finalTotalRMB - oceanFreightRMB) / lockedRate;
-    else rebateBaseUSD = finalTotalRMB / lockedRate;
-    const rebaseBaseRMB = rebateBaseUSD * monthStartRate;
-    const maxRebate = rebaseBaseRMB * taxRebateRate;
+    let rebateBaseRMB = 0;
+    // 退税只按货物成本（采购成本）计算，不包含其他费用
+    rebateBaseRMB = invoiceTotalWithoutTax;
+    const maxRebate = rebateBaseRMB * taxRebateRate;
     const vatPaid = invoiceTotalWithTax - invoiceTotalWithoutTax;
     const compliantRebate = Math.min(maxRebate, vatPaid);
     const totalProfitWithRebate = profitAmount + compliantRebate;
@@ -1038,8 +1025,7 @@ function calc() {
     $('detailTotalCostWithTax').textContent = fmt(totalCostWithTax, 2) + ' 元';
     $('detailTaxDiff').textContent = fmt(taxDiff, 2) + ' 元';
 
-    $('rebateBaseUSD').textContent = fmt(rebateBaseUSD, 2);
-    $('rebaseBaseRMB').textContent = fmt(rebaseBaseRMB, 2) + ' 元';
+    $('rebateBaseRMB').textContent = fmt(rebateBaseRMB, 2) + ' 元';
     $('maxRebate').textContent = fmt(maxRebate, 2) + ' 元';
     $('compliantRebate').textContent = fmt(compliantRebate, 2) + ' 元';
     $('depositUSD').textContent = fmt(depositUSD, 2) + ' USD';
