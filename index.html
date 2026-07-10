@@ -698,7 +698,10 @@
     </div>
 </div>
 
-<button class="btn-outline" onclick="resetToDefaults()">🔄 重置为默认值</button>
+<div style="display:flex;gap:10px;margin-top:12px;">
+    <button class="btn-outline" style="flex:1;margin-top:0;" onclick="clearAll()">🗑️ 一键清空</button>
+    <button class="btn-outline" style="flex:1;margin-top:0;" onclick="resetToDefaults()">🔄 重置默认值</button>
+</div>
 
 </div><!-- /tab-input -->
 
@@ -918,6 +921,10 @@ function loadDefaults() {
     onContainerChange();
 }
 function resetToDefaults() { loadDefaults(); }
+function clearAll() {
+    document.querySelectorAll('.card-body .form-input[type="number"]').forEach(el => el.value = '0');
+    calc();
+}
 
 // =================== 核心计算 ===================
 function calc() {
