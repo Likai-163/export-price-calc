@@ -776,11 +776,6 @@
 
     <div class="result-grid">
         <div class="result-item">
-            <div class="label">RMB 单价</div>
-            <div class="value rmb" id="resultUnitPriceRMBGrid">--.--</div>
-            <div class="sub-value">元 / 公斤</div>
-        </div>
-        <div class="result-item">
             <div class="label">总价（RMB）</div>
             <div class="value rmb" id="resultTotalRMB">--.--</div>
             <div class="sub-value">元</div>
@@ -1111,8 +1106,6 @@ function calc() {
 
     $('resultUnitPriceUSDperKg').textContent = fmt(finalUnitPriceUSDPerKg, 2);
     $('resultUnitPriceRMB').textContent = fmt(finalUnitPriceRMB, 2);
-    const gridRMB = $('resultUnitPriceRMBGrid');
-    if (gridRMB) gridRMB.textContent = fmt(finalUnitPriceRMB, 2);
     $('resultTotalRMB').textContent = fmt(finalTotalRMB, 2);
     $('resultTotalUSD').textContent = fmt(finalTotalUSD, 2);
     $('resultUnitPriceUSD').textContent = fmt(finalUnitPriceUSDPerTon, 2);
