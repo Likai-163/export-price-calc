@@ -760,18 +760,9 @@
 <div id="tab-result" class="tab-content">
 
     <div class="result-hero">
-        <div class="label" style="margin-bottom:8px;">报价单价</div>
-        <div style="display:flex;justify-content:center;gap:32px;">
-            <div>
-                <div class="value" style="font-size:32px;margin-bottom:0;"><span class="currency">$</span><span id="resultUnitPriceUSDperKg">--.--</span></div>
-                <div class="sub-value">美元 / 公斤</div>
-            </div>
-            <div style="width:1px;background:rgba(255,255,255,0.15);"></div>
-            <div>
-                <div class="value" style="font-size:32px;margin-bottom:0;"><span class="currency" style="font-size:16px;">¥</span><span id="resultUnitPriceRMB">--.--</span></div>
-                <div class="sub-value">人民币 / 公斤</div>
-            </div>
-        </div>
+        <div class="label">USD 报价单价</div>
+        <div class="value"><span class="currency">$</span><span id="resultUnitPriceUSDperKg">--.--</span></div>
+        <div class="sub-value">美元 / 公斤</div>
     </div>
 
     <div class="result-grid">
@@ -1105,7 +1096,6 @@ function calc() {
     $('rateDiffAmount').textContent = fmt(rateDiffAmount, 2) + ' 元';
 
     $('resultUnitPriceUSDperKg').textContent = fmt(finalUnitPriceUSDPerKg, 2);
-    $('resultUnitPriceRMB').textContent = fmt(finalUnitPriceRMB, 2);
     $('resultTotalRMB').textContent = fmt(finalTotalRMB, 2);
     $('resultTotalUSD').textContent = fmt(finalTotalUSD, 2);
     $('resultUnitPriceUSD').textContent = fmt(finalUnitPriceUSDPerTon, 2);
