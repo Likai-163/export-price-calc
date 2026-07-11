@@ -808,6 +808,7 @@
                 <div class="line" style="border-top:1px dashed var(--border);padding-top:4px;margin-top:4px;font-weight:600;"><span>不含税成本总价</span><span id="detailTotalCostNoTax">0.00 元</span></div>
                 <div class="line"><span>含税成本总价</span><span id="detailTotalCostWithTax">0.00 元</span></div>
                 <div class="line" style="color:var(--text-secondary);"><span>税差</span><span id="detailTaxDiff">0.00 元</span></div>
+                <div class="line" style="border-top:2px solid var(--primary);padding-top:4px;margin-top:4px;font-weight:700;color:var(--primary);font-size:13px;"><span>📋 总成本（含税+利润）</span><span id="detailGrandTotal">0.00 元</span></div>
             </div>
         </div>
     </div>
@@ -1114,6 +1115,7 @@ function calc() {
     $('detailTotalCostNoTax').textContent = fmt(totalCostNoTax, 2) + ' 元';
     $('detailTotalCostWithTax').textContent = fmt(totalCostWithTax, 2) + ' 元';
     $('detailTaxDiff').textContent = fmt(taxDiff, 2) + ' 元';
+    $('detailGrandTotal').textContent = fmt(finalTotalRMB, 2) + ' 元';
 
     $('rebateBaseRMB').textContent = fmt(rebateBaseRMB, 2) + ' 元';
     $('maxRebate').textContent = fmt(maxRebate, 2) + ' 元';
