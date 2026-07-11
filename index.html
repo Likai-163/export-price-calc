@@ -252,6 +252,7 @@
             .select-wrap select:focus { background-color: #161b22; }
             .sub-result { background: #0d1117; }
             .sub-result.highlight { background: #0d2137; border-color: #1f4a7a; }
+            .sub-result[style*="f0faf0"] { background: #0a2a0a !important; border-color: #1a5a1a !important; }
             .result-item { background: #0d1117; }
             .result-hero { background: linear-gradient(135deg, #0d1117, #1f2937); }
             .tab-bar { background: #161b22; }
@@ -955,6 +956,7 @@ function resetToDefaults() { loadDefaults(); }
 function clearAll() {
     document.querySelectorAll('.card-body .form-input[type="number"]').forEach(el => el.value = '0');
     calc();
+    reverseCalc();
 }
 function reverseCalc() {
     const unitPrice = getVal('reverseUnitPrice');
