@@ -252,7 +252,6 @@
             .select-wrap select:focus { background-color: #161b22; }
             .sub-result { background: #0d1117; }
             .sub-result.highlight { background: #0d2137; border-color: #1f4a7a; }
-            .sub-result[style*="f0faf0"] { background: #0a2a0a !important; border-color: #1a5a1a !important; }
             .result-item { background: #0d1117; }
             .result-hero { background: linear-gradient(135deg, #0d1117, #1f2937); }
             .tab-bar { background: #161b22; }
@@ -364,6 +363,43 @@
     </div>
 </div>
 
+<!-- ===== 反推工具 ===== -->
+<div class="card">
+    <div class="card-header" onclick="toggle(this)">
+        <span class="title">🔁 反推工具</span>
+        <span class="arrow open">▼</span>
+    </div>
+    <div class="card-body open">
+        <div class="form-row">
+            <span class="form-label">裸价</span>
+            <div class="form-input-wrap">
+                <input type="number" id="reverseNakedPrice" class="form-input" value="30" step="0.01" oninput="reverseCalc()">
+                <span class="suffix">元/kg</span>
+            </div>
+        </div>
+        <div class="form-row">
+            <span class="form-label">税点</span>
+            <div class="form-input-wrap">
+                <input type="number" id="reverseTaxRate" class="form-input" value="3" step="0.1" oninput="reverseCalc()">
+                <span class="suffix">%</span>
+            </div>
+        </div>
+        <div class="form-row">
+            <span class="form-label">采购总量</span>
+            <div class="form-input-wrap">
+                <input type="number" id="reverseQuantity" class="form-input" value="16000" step="100" oninput="reverseCalc()">
+                <span class="suffix">公斤</span>
+            </div>
+        </div>
+        <div class="sub-result highlight">
+            <div class="line" style="font-weight:600;color:var(--primary);"><span>含税单价</span><span id="reverseUnitPriceResult">30.90 元/kg</span></div>
+            <div class="line"><span>票面不含税总价</span><span id="reverseTotalNoTax">480,000.00 元</span></div>
+            <div class="line"><span>含税总价</span><span id="reverseTotalWithTax">494,400.00 元</span></div>
+            <div class="line" style="border-top:1px dashed var(--border);padding-top:4px;margin-top:4px;font-size:11px;color:#9ca3af;"><span>含税总价 ÷ 采购总量</span><span id="reverseVerify">30.90 元/kg</span></div>
+        </div>
+    </div>
+</div>
+
 <!-- ===== 采购成本 ===== -->
 <div class="card">
     <div class="card-header" onclick="toggle(this)">
@@ -407,34 +443,6 @@
     </div>
 </div>
 
-<!-- ===== 反推不含税单价 ===== -->
-<div class="card">
-    <div class="card-header" onclick="toggle(this)">
-        <span class="title">🔁 反推不含税单价</span>
-        <span class="arrow">▼</span>
-    </div>
-    <div class="card-body">
-        <p style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;">已知含税单价，反推出不含税单价</p>
-        <div class="form-row">
-            <span class="form-label">含税单价</span>
-            <div class="form-input-wrap">
-                <input type="number" id="reverseUnitPrice" class="form-input" value="30.90" step="0.01" oninput="reverseCalc()">
-                <span class="suffix">元/kg</span>
-            </div>
-        </div>
-        <div class="form-row">
-            <span class="form-label">税率</span>
-            <div class="form-input-wrap">
-                <input type="number" id="reverseTaxRate" class="form-input" value="3" step="0.1" oninput="reverseCalc()">
-                <span class="suffix">%</span>
-            </div>
-        </div>
-        <div class="sub-result" style="background:#f0faf0;border-color:#b7e4b7;">
-            <div class="line" style="font-weight:600;color:#059669;"><span>不含税单价</span><span id="reverseResult">30.00 元/kg</span></div>
-            <div class="line"><span>含税总价（数量1kg）</span><span id="reverseTotalWithTax">30.90 元</span></div>
-        </div>
-    </div>
-</div>
 
 <!-- ===== 包装成本 ===== -->
 <div class="card">
@@ -914,6 +922,7 @@ function onContainerChange() {
     $('quantity').value = qty;
     $('pieceCount').value = pcs;
     $('oceanFreight').value = freight;
+    $('reverseQuantity').value = qty;
     if (ct === 'LCL') {
         $('truckFee').value = 1100; $('telexFee').value = 500; $('customsFee').value = 400;
         $('thcFee').value = 0; $('docFee').value = 450; $('sealFee').value = 0;
@@ -925,6 +934,7 @@ function onContainerChange() {
         $('otherPortFee').value = defs.otherPortFee||545; $('fumiFee').value = defs.fumiFee||1160;
     }
     calc();
+    reverseCalc();
 }
 
 function loadDefaults() {
@@ -950,7 +960,11 @@ function loadDefaults() {
     $('lockedRate').value = defs.lockedRate;
     $('taxRebateRate').value = defs.taxRebateRate;
     $('depositRate').value = defs.depositRate;
+    $('reverseNakedPrice').value = defs.nakedPrice;
+    $('reverseTaxRate').value = defs.actualTaxRate;
+    $('reverseQuantity').value = defs.quantity40 || 16000;
     onContainerChange();
+    reverseCalc();
 }
 function resetToDefaults() { loadDefaults(); }
 function clearAll() {
@@ -959,11 +973,17 @@ function clearAll() {
     reverseCalc();
 }
 function reverseCalc() {
-    const unitPrice = getVal('reverseUnitPrice');
+    const nakedPrice = getVal('reverseNakedPrice');
     const taxRate = getVal('reverseTaxRate') / 100;
-    const withoutTax = unitPrice / (1 + taxRate);
-    $('reverseResult').textContent = fmt(withoutTax, 2) + ' 元/kg';
-    $('reverseTotalWithTax').textContent = fmt(unitPrice, 2) + ' 元';
+    const quantity = getVal('reverseQuantity');
+    const unitPriceWithTax = nakedPrice * (1 + taxRate);
+    const totalNoTax = nakedPrice * quantity;
+    const totalWithTax = unitPriceWithTax * quantity;
+    const verify = quantity > 0 ? totalWithTax / quantity : 0;
+    $('reverseUnitPriceResult').textContent = fmt(unitPriceWithTax, 2) + ' 元/kg';
+    $('reverseTotalNoTax').textContent = fmt(totalNoTax, 2) + ' 元';
+    $('reverseTotalWithTax').textContent = fmt(totalWithTax, 2) + ' 元';
+    $('reverseVerify').textContent = fmt(verify, 2) + ' 元/kg';
 }
 
 // =================== 核心计算 ===================
