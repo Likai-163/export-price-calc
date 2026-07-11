@@ -363,10 +363,10 @@
     </div>
 </div>
 
-<!-- ===== 货物成本计算 ===== -->
+<!-- ===== 采购成本 ===== -->
 <div class="card">
     <div class="card-header" onclick="toggle(this)">
-        <span class="title">🧮 货物成本计算</span>
+        <span class="title">💰 采购成本</span>
         <span class="arrow open">▼</span>
     </div>
     <div class="card-body open">
@@ -378,10 +378,17 @@
             </div>
         </div>
         <div class="form-row">
-            <span class="form-label">实际支付税点</span>
+            <span class="form-label">票面税点</span>
+            <div class="form-input-wrap">
+                <input type="number" id="invoiceTaxRate" class="form-input" value="9" step="0.1" oninput="calc()">
+                <span class="suffix">%</span>
+            </div>
+        </div>
+        <div class="form-row">
+            <span class="form-label">实际税点</span>
             <div class="form-input-wrap">
                 <input type="number" id="actualTaxRate" class="form-input" value="3" step="0.1" oninput="calc()">
-                <span class="suffix">%（付给供应商）</span>
+                <span class="suffix">%</span>
             </div>
         </div>
         <div class="form-row">
@@ -391,17 +398,39 @@
                 <span class="suffix">公斤</span>
             </div>
         </div>
+        <div class="sub-result">
+            <div class="line"><span>实际单价</span><span id="actualUnitPrice">30.90 元/kg</span></div>
+            <div class="line"><span>票面总价（含税）</span><span id="invoiceTotalWithTax">494,400.00 元</span></div>
+            <div class="line"><span>票面总价（不含税）</span><span id="invoiceTotalWithoutTax">453,578 元</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 反推不含税单价 ===== -->
+<div class="card">
+    <div class="card-header" onclick="toggle(this)">
+        <span class="title">🔁 反推不含税单价</span>
+        <span class="arrow">▼</span>
+    </div>
+    <div class="card-body">
+        <p style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;">已知含税单价，反推出不含税单价</p>
         <div class="form-row">
-            <span class="form-label">票面税点</span>
+            <span class="form-label">含税单价</span>
             <div class="form-input-wrap">
-                <input type="number" id="invoiceTaxRate" class="form-input" value="9" step="0.1" oninput="calc()">
-                <span class="suffix">%（开票用）</span>
+                <input type="number" id="reverseUnitPrice" class="form-input" value="30.90" step="0.01" oninput="reverseCalc()">
+                <span class="suffix">元/kg</span>
             </div>
         </div>
-        <div class="sub-result highlight">
-            <div class="line" style="font-weight:600;color:var(--primary);"><span>实际单价（含税）</span><span id="actualUnitPrice">30.90 元/kg</span></div>
-            <div class="line"><span>货物含税总价</span><span id="invoiceTotalWithTax">494,400.00 元</span></div>
-            <div class="line"><span>货物不含税总价</span><span id="invoiceTotalWithoutTax">453,578 元</span></div>
+        <div class="form-row">
+            <span class="form-label">税率</span>
+            <div class="form-input-wrap">
+                <input type="number" id="reverseTaxRate" class="form-input" value="3" step="0.1" oninput="reverseCalc()">
+                <span class="suffix">%</span>
+            </div>
+        </div>
+        <div class="sub-result" style="background:#f0faf0;border-color:#b7e4b7;">
+            <div class="line" style="font-weight:600;color:#059669;"><span>不含税单价</span><span id="reverseResult">30.00 元/kg</span></div>
+            <div class="line"><span>含税总价（数量1kg）</span><span id="reverseTotalWithTax">30.90 元</span></div>
         </div>
     </div>
 </div>
@@ -927,6 +956,13 @@ function clearAll() {
     document.querySelectorAll('.card-body .form-input[type="number"]').forEach(el => el.value = '0');
     calc();
 }
+function reverseCalc() {
+    const unitPrice = getVal('reverseUnitPrice');
+    const taxRate = getVal('reverseTaxRate') / 100;
+    const withoutTax = unitPrice / (1 + taxRate);
+    $('reverseResult').textContent = fmt(withoutTax, 2) + ' 元/kg';
+    $('reverseTotalWithTax').textContent = fmt(unitPrice, 2) + ' 元';
+}
 
 // =================== 核心计算 ===================
 function calc() {
@@ -964,10 +1000,9 @@ function calc() {
     const tradeTerm = $('tradeTerm').value;
 
     const actualUnitPrice = nakedPrice * (1 + actualTaxRate);
-    // 货物含税总价 = 裸价 × (1 + 实际税点) × 数量（实际支付给供应商的总额）
-    const invoiceTotalWithTax = actualUnitPrice * quantity;
-    // 货物不含税总价 = 裸价 × 数量（纯货物成本，不含任何税）
-    const invoiceTotalWithoutTax = nakedPrice * quantity;
+    const invoiceUnitPrice = nakedPrice * (1 + invoiceTaxRate);
+    const invoiceTotalWithTax = invoiceUnitPrice * quantity;
+    const invoiceTotalWithoutTax = invoiceTotalWithTax / (1 + invoiceTaxRate);
     const packingSubtotal = (packingLabor + packingMaterial + labelCost + loadingFee) * pieceCount + shortTransport;
     const logisticsSubtotal = truckFee + telexFee + customsFee + thcFee + docFee + sealFee + otherPortFee;
     const certSubtotal = phytoCert + coCert + healthCert + fumiCert + fumiFee + testFee;
