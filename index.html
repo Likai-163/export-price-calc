@@ -1057,8 +1057,9 @@ function calc() {
     const totalCostNoTax = invoiceTotalWithoutTax + packingSubtotal + logisticsSubtotal + certSubtotal + shippingSubtotal;
     const totalCostWithTax = invoiceTotalWithTax + packingSubtotal + logisticsSubtotal + certSubtotal + shippingSubtotal;
     const taxDiff = totalCostWithTax - totalCostNoTax;
-    const profitAmount = totalCostNoTax * profitRate;
-    const finalTotalRMB = totalCostNoTax + profitAmount;
+    // 报价基数 = 含税总价 + 包装 + 物流 + 办证 + 海运保险（所有成本求和）
+    const profitAmount = totalCostWithTax * profitRate;
+    const finalTotalRMB = totalCostWithTax + profitAmount;
     const rateDiffAmount = finalTotalRMB * (centralRate - lockedRate);
     const finalTotalUSD = finalTotalRMB / lockedRate;
     const finalUnitPriceUSDPerKg = finalTotalUSD / quantity;
