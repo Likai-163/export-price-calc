@@ -169,6 +169,7 @@
             background: #f8fafc; border-radius: var(--radius-sm); padding: 10px 12px; margin-top: 10px;
             border: 1px solid var(--border);
         }
+        .sub-result.highlight { background: #f0f7ff; border-color: #bdd7ee; }
         .sub-result .line { font-size: 12px; color: var(--text-secondary); line-height: 2; display: flex; justify-content: space-between; }
         .sub-result .line span { font-weight: 600; color: var(--text); }
 
@@ -250,6 +251,7 @@
             .select-wrap select { background-color: #0d1117; color: #e6edf3; }
             .select-wrap select:focus { background-color: #161b22; }
             .sub-result { background: #0d1117; }
+            .sub-result.highlight { background: #0d2137; border-color: #1f4a7a; }
             .result-item { background: #0d1117; }
             .result-hero { background: linear-gradient(135deg, #0d1117, #1f2937); }
             .tab-bar { background: #161b22; }
@@ -361,10 +363,10 @@
     </div>
 </div>
 
-<!-- ===== 采购成本 ===== -->
+<!-- ===== 货物成本计算 ===== -->
 <div class="card">
     <div class="card-header" onclick="toggle(this)">
-        <span class="title">💰 采购成本</span>
+        <span class="title">🧮 货物成本计算</span>
         <span class="arrow open">▼</span>
     </div>
     <div class="card-body open">
@@ -376,17 +378,10 @@
             </div>
         </div>
         <div class="form-row">
-            <span class="form-label">票面税点</span>
-            <div class="form-input-wrap">
-                <input type="number" id="invoiceTaxRate" class="form-input" value="9" step="0.1" oninput="calc()">
-                <span class="suffix">%</span>
-            </div>
-        </div>
-        <div class="form-row">
-            <span class="form-label">实际税点</span>
+            <span class="form-label">实际支付税点</span>
             <div class="form-input-wrap">
                 <input type="number" id="actualTaxRate" class="form-input" value="3" step="0.1" oninput="calc()">
-                <span class="suffix">%</span>
+                <span class="suffix">%（付给供应商）</span>
             </div>
         </div>
         <div class="form-row">
@@ -396,10 +391,17 @@
                 <span class="suffix">公斤</span>
             </div>
         </div>
-        <div class="sub-result">
-            <div class="line"><span>实际单价</span><span id="actualUnitPrice">30.90 元/kg</span></div>
-            <div class="line"><span>票面总价（含税）</span><span id="invoiceTotalWithTax">494,400.00 元</span></div>
-            <div class="line"><span>票面总价（不含税）</span><span id="invoiceTotalWithoutTax">453,578 元</span></div>
+        <div class="form-row">
+            <span class="form-label">票面税点</span>
+            <div class="form-input-wrap">
+                <input type="number" id="invoiceTaxRate" class="form-input" value="9" step="0.1" oninput="calc()">
+                <span class="suffix">%（开票用）</span>
+            </div>
+        </div>
+        <div class="sub-result highlight">
+            <div class="line" style="font-weight:600;color:var(--primary);"><span>实际单价（含税）</span><span id="actualUnitPrice">30.90 元/kg</span></div>
+            <div class="line"><span>货物含税总价</span><span id="invoiceTotalWithTax">494,400.00 元</span></div>
+            <div class="line"><span>货物不含税总价</span><span id="invoiceTotalWithoutTax">453,578 元</span></div>
         </div>
     </div>
 </div>
@@ -962,9 +964,10 @@ function calc() {
     const tradeTerm = $('tradeTerm').value;
 
     const actualUnitPrice = nakedPrice * (1 + actualTaxRate);
-    const invoiceUnitPrice = nakedPrice * (1 + invoiceTaxRate);
-    const invoiceTotalWithTax = invoiceUnitPrice * quantity;
-    const invoiceTotalWithoutTax = invoiceTotalWithTax / (1 + invoiceTaxRate);
+    // 货物含税总价 = 裸价 × (1 + 实际税点) × 数量（实际支付给供应商的总额）
+    const invoiceTotalWithTax = actualUnitPrice * quantity;
+    // 货物不含税总价 = 裸价 × 数量（纯货物成本，不含任何税）
+    const invoiceTotalWithoutTax = nakedPrice * quantity;
     const packingSubtotal = (packingLabor + packingMaterial + labelCost + loadingFee) * pieceCount + shortTransport;
     const logisticsSubtotal = truckFee + telexFee + customsFee + thcFee + docFee + sealFee + otherPortFee;
     const certSubtotal = phytoCert + coCert + healthCert + fumiCert + fumiFee + testFee;
