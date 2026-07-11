@@ -378,10 +378,17 @@
             </div>
         </div>
         <div class="form-row">
-            <span class="form-label">税点</span>
+            <span class="form-label">实际税点</span>
             <div class="form-input-wrap">
                 <input type="number" id="reverseTaxRate" class="form-input" value="3" step="0.1" oninput="reverseCalc()">
-                <span class="suffix">%</span>
+                <span class="suffix">%（付给供应商）</span>
+            </div>
+        </div>
+        <div class="form-row">
+            <span class="form-label">发票税率</span>
+            <div class="form-input-wrap">
+                <input type="number" id="reverseInvoiceRate" class="form-input" value="9" step="0.1" oninput="reverseCalc()">
+                <span class="suffix">%（开票用）</span>
             </div>
         </div>
         <div class="form-row">
@@ -393,9 +400,13 @@
         </div>
         <div class="sub-result highlight">
             <div class="line" style="font-weight:600;color:var(--primary);"><span>含税单价</span><span id="reverseUnitPriceResult">30.90 元/kg</span></div>
-            <div class="line"><span>票面不含税总价</span><span id="reverseTotalNoTax">480,000.00 元</span></div>
-            <div class="line"><span>含税总价</span><span id="reverseTotalWithTax">494,400.00 元</span></div>
-            <div class="line" style="border-top:1px dashed var(--border);padding-top:4px;margin-top:4px;font-size:11px;color:#9ca3af;"><span>含税总价 ÷ 采购总量</span><span id="reverseVerify">30.90 元/kg</span></div>
+            <div class="line"><span>实际支付总价</span><span id="reverseTotalPaid">494,400.00 元</span></div>
+            <div class="line" style="border-top:1px dashed var(--border);padding-top:4px;margin-top:4px;"><span>发票不含税总价</span><span id="reverseInvoiceNoTax">453,577.98 元</span></div>
+            <div class="line"><span>发票含税总价</span><span id="reverseInvoiceWithTax">494,400.00 元</span></div>
+            <div class="line" style="border-top:1px dashed var(--border);padding-top:4px;margin-top:4px;background:#f0faf0;border-radius:4px;padding:4px 8px;margin-left:-8px;margin-right:-8px;font-weight:700;">
+                <span>⬅ 反推不含税单价</span><span id="reverseUnitPriceNoTax" style="color:#059669;">28.35 元/kg</span>
+            </div>
+            <div class="line" style="font-size:11px;color:#9ca3af;"><span>验证：发票含税总价÷总量</span><span id="reverseVerify">30.90 元/kg</span></div>
         </div>
     </div>
 </div>
@@ -962,6 +973,7 @@ function loadDefaults() {
     $('depositRate').value = defs.depositRate;
     $('reverseNakedPrice').value = defs.nakedPrice;
     $('reverseTaxRate').value = defs.actualTaxRate;
+    $('reverseInvoiceRate').value = defs.invoiceTaxRate;
     $('reverseQuantity').value = defs.quantity40 || 16000;
     onContainerChange();
     reverseCalc();
@@ -974,15 +986,20 @@ function clearAll() {
 }
 function reverseCalc() {
     const nakedPrice = getVal('reverseNakedPrice');
-    const taxRate = getVal('reverseTaxRate') / 100;
+    const actualTax = getVal('reverseTaxRate') / 100;
+    const invoiceTax = getVal('reverseInvoiceRate') / 100;
     const quantity = getVal('reverseQuantity');
-    const unitPriceWithTax = nakedPrice * (1 + taxRate);
-    const totalNoTax = nakedPrice * quantity;
-    const totalWithTax = unitPriceWithTax * quantity;
-    const verify = quantity > 0 ? totalWithTax / quantity : 0;
+    const unitPriceWithTax = nakedPrice * (1 + actualTax);
+    const totalPaid = unitPriceWithTax * quantity;
+    const invoiceNoTax = totalPaid / (1 + invoiceTax);
+    const invoiceWithTax = invoiceNoTax * (1 + invoiceTax);
+    const unitPriceNoTax = quantity > 0 ? invoiceNoTax / quantity : 0;
+    const verify = quantity > 0 ? invoiceWithTax / quantity : 0;
     $('reverseUnitPriceResult').textContent = fmt(unitPriceWithTax, 2) + ' 元/kg';
-    $('reverseTotalNoTax').textContent = fmt(totalNoTax, 2) + ' 元';
-    $('reverseTotalWithTax').textContent = fmt(totalWithTax, 2) + ' 元';
+    $('reverseTotalPaid').textContent = fmt(totalPaid, 2) + ' 元';
+    $('reverseInvoiceNoTax').textContent = fmt(invoiceNoTax, 2) + ' 元';
+    $('reverseInvoiceWithTax').textContent = fmt(invoiceWithTax, 2) + ' 元';
+    $('reverseUnitPriceNoTax').textContent = fmt(unitPriceNoTax, 2) + ' 元/kg';
     $('reverseVerify').textContent = fmt(verify, 2) + ' 元/kg';
 }
 
