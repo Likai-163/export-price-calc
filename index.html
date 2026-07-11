@@ -825,37 +825,7 @@
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-header" onclick="toggle(this)">
-            <span class="title">🔐 密码设置</span>
-            <span class="arrow">▼</span>
-        </div>
-        <div class="card-body">
-            <p style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;">修改后下次访问时生效</p>
-            <div class="form-row">
-                <span class="form-label form-label-sm">当前密码</span>
-                <div class="form-input-wrap">
-                    <input type="password" id="oldPwdInput" class="form-input" placeholder="输入当前密码">
-                </div>
-            </div>
-            <div class="form-row">
-                <span class="form-label form-label-sm">新密码</span>
-                <div class="form-input-wrap">
-                    <input type="password" id="newPwdInput" class="form-input" placeholder="输入新密码">
-                </div>
-            </div>
-            <div class="form-row">
-                <span class="form-label form-label-sm">确认新密码</span>
-                <div class="form-input-wrap">
-                    <input type="password" id="confirmPwdInput" class="form-input" placeholder="再次输入">
-                </div>
-            </div>
-            <button class="btn-primary" onclick="changePassword()">修改密码</button>
-            <div class="msg" id="pwdMsg"></div>
-        </div>
-    </div>
-
-</div><!-- /tab-result -->
+	</div><!-- /tab-result -->
 
 </div><!-- /mainApp -->
 
@@ -1151,21 +1121,6 @@ function checkPassword() {
     }
 }
 
-function changePassword() {
-    const old = document.getElementById('oldPwdInput').value;
-    const np = document.getElementById('newPwdInput').value;
-    const cf = document.getElementById('confirmPwdInput').value;
-    const msg = document.getElementById('pwdMsg');
-    const saved = localStorage.getItem('calc_password') || DEFAULT_PASSWORD;
-    if (old !== saved) { msg.style.color = '#e74c3c'; msg.textContent = '❌ 当前密码错误'; return; }
-    if (np.length < 4) { msg.style.color = '#e74c3c'; msg.textContent = '❌ 密码至少4位'; return; }
-    if (np !== cf) { msg.style.color = '#e74c3c'; msg.textContent = '❌ 两次密码不一致'; return; }
-    localStorage.setItem('calc_password', np);
-    document.getElementById('oldPwdInput').value = '';
-    document.getElementById('newPwdInput').value = '';
-    document.getElementById('confirmPwdInput').value = '';
-    msg.style.color = '#27ae60'; msg.textContent = '✅ 密码修改成功！';
-}
 
 // =================== Tab切换 ===================
 document.getElementById('tabBar').addEventListener('click', function(e) {
