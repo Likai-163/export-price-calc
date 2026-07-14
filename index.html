@@ -875,7 +875,7 @@
 
 <script>
 // =================== 共享变量（calc 与 recalcFinal 通信） ===================
-let _totalCostWithTax = 0, _quantity = 0, _lockedRate = 0, _compliantRebate = 0;
+let _totalCostWithTax = 0, _quantity = 0, _lockedRate = 0, _compliantRebate = 0, _profitAmount = 0;
 
 // =================== 默认参数配置 ===================
 const DEFAULTS = {
@@ -1089,9 +1089,11 @@ function calc() {
 
     // 同步全局变量 + 最终报价默认值
     _totalCostWithTax = pricingCost;
+    _profitAmount = profitAmount;
     _quantity = quantity;
     _lockedRate = lockedRate;
-    $('finalPriceInput').value = finalUnitPriceUSDPerKg.toFixed(2);
+    $('finalPriceInput').value = finalUnitPriceUSDPerKg.toFixed(4);
+    $('finalPriceInput').dataset.suggested = finalUnitPriceUSDPerKg.toFixed(4);
     recalcFinal();
 
     let rebateBaseRMB = 0;
@@ -1160,8 +1162,10 @@ function recalcFinal() {
         return;
     }
     const totalUSD = finalPrice * _quantity;
-    const revenue = finalPrice * _quantity * _lockedRate;
-    const profit = revenue - _totalCostWithTax;
+    const revenue = totalUSD * _lockedRate;
+    // 最终报价与建议价一致时，直接引用 calc() 算出的利润（避免精度误差）
+    const priceMatch = Math.abs(finalPrice - parseFloat($('finalPriceInput').dataset.suggested || 0)) < 0.005;
+    const profit = priceMatch ? _profitAmount : (revenue - _totalCostWithTax);
     const totalProfitWithRebate = profit + _compliantRebate;
     const margin = revenue > 0 ? ((profit + _compliantRebate) / revenue * 100) : 0;
     $('finalTotalUSD2').textContent = fmt(totalUSD, 2) + ' USD';
