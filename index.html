@@ -1163,9 +1163,7 @@ function recalcFinal() {
     }
     const totalUSD = finalPrice * _quantity;
     const revenue = totalUSD * _lockedRate;
-    // 最终报价与建议价一致时，直接引用 calc() 算出的利润（避免精度误差）
-    const priceMatch = Math.abs(finalPrice - parseFloat($('finalPriceInput').dataset.suggested || 0)) < 0.005;
-    const profit = priceMatch ? _profitAmount : (revenue - _totalCostWithTax);
+    const profit = revenue - _totalCostWithTax;
     const totalProfitWithRebate = profit + _compliantRebate;
     const margin = revenue > 0 ? ((profit + _compliantRebate) / revenue * 100) : 0;
     $('finalTotalUSD2').textContent = fmt(totalUSD, 2) + ' USD';
