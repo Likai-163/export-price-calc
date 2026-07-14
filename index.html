@@ -814,8 +814,10 @@
                 </div>
             </div>
             <div class="sub-result highlight">
+                <div class="line"><span>美元总价</span><span id="finalTotalUSD2">--.-- USD</span></div>
                 <div class="line"><span>实际收入（RMB）</span><span id="finalRevenueRMB">--.-- 元</span></div>
-                <div class="line" style="font-weight:700;color:var(--primary);font-size:13px;"><span>实际利润</span><span id="finalActualProfit">--.-- 元</span></div>
+                <div class="line" style="font-weight:700;color:var(--primary);font-size:13px;"><span>人民币利润</span><span id="finalActualProfit">--.-- 元</span></div>
+                <div class="line" style="font-weight:700;color:#059669;font-size:13px;"><span>人民币总利润（利润+退税）</span><span id="finalTotalProfitWithRebate">--.-- 元</span></div>
                 <div class="line" style="color:var(--text-secondary);"><span>实际利润率</span><span id="finalProfitMargin">--.-- %</span></div>
             </div>
         </div>
@@ -864,7 +866,7 @@
 
 <script>
 // =================== 共享变量（calc 与 recalcFinal 通信） ===================
-let _totalCostWithTax = 0, _quantity = 0, _lockedRate = 0;
+let _totalCostWithTax = 0, _quantity = 0, _lockedRate = 0, _compliantRebate = 0;
 
 // =================== 默认参数配置 ===================
 const DEFAULTS = {
@@ -1084,6 +1086,7 @@ function calc() {
     const maxRebate = rebateBaseRMB * taxRebateRate;
     const vatPaid = invoiceTotalWithTax - invoiceTotalWithoutTax;
     const compliantRebate = Math.min(maxRebate, vatPaid);
+    _compliantRebate = compliantRebate;
     const totalProfitWithRebate = profitAmount + compliantRebate;
     const depositUSD = finalTotalUSD * depositRate;
     const balanceUSD = finalTotalUSD * (1 - depositRate);
@@ -1135,16 +1138,22 @@ function calc() {
 function recalcFinal() {
     const finalPrice = getVal('finalPriceInput');
     if (finalPrice <= 0 || _quantity <= 0 || _lockedRate <= 0) {
+        $('finalTotalUSD2').textContent = '--.-- USD';
         $('finalRevenueRMB').textContent = '--.-- 元';
         $('finalActualProfit').textContent = '--.-- 元';
+        $('finalTotalProfitWithRebate').textContent = '--.-- 元';
         $('finalProfitMargin').textContent = '--.-- %';
         return;
     }
+    const totalUSD = finalPrice * _quantity;
     const revenue = finalPrice * _quantity * _lockedRate;
     const profit = revenue - _totalCostWithTax;
+    const totalProfitWithRebate = profit + _compliantRebate;
     const margin = revenue > 0 ? (profit / revenue * 100) : 0;
+    $('finalTotalUSD2').textContent = fmt(totalUSD, 2) + ' USD';
     $('finalRevenueRMB').textContent = fmt(revenue, 2) + ' 元';
     $('finalActualProfit').textContent = fmt(profit, 2) + ' 元';
+    $('finalTotalProfitWithRebate').textContent = fmt(totalProfitWithRebate, 2) + ' 元';
     $('finalProfitMargin').textContent = fmt(margin, 2) + ' %';
 }
 
