@@ -1133,7 +1133,7 @@ function calc() {
     $('resultTotalUSD').textContent = fmt(finalTotalUSD, 2);
     $('resultUnitPriceUSD').textContent = fmt(finalUnitPriceUSDPerTon, 2);
     $('resultProfit').textContent = fmt(profitAmount, 2);
-    $('detailProcurement').textContent = fmt(actualTotalPaid, 2) + ' 元';
+    $('detailProcurement').textContent = fmt(invoiceTotalWithTax, 2) + ' 元';
     $('detailPacking').textContent = fmt(packingSubtotal, 2) + ' 元';
     $('detailLogistics').textContent = fmt(logisticsSubtotal, 2) + ' 元';
     $('detailCert').textContent = fmt(certSubtotal, 2) + ' 元';
@@ -1141,9 +1141,7 @@ function calc() {
     $('detailTotalCostNoTax').textContent = fmt(totalCostNoTax, 2) + ' 元';
     $('detailTotalCostWithTax').textContent = fmt(totalCostWithTax, 2) + ' 元';
     $('detailTaxDiff').textContent = fmt(taxDiff, 2) + ' 元';
-    // 总成本 = 五项明细直接相加（与pricingCost一致，避免任何不一致）
-    const grandTotalCheck = actualTotalPaid + packingSubtotal + logisticsSubtotal + certSubtotal + shippingSubtotal;
-    $('detailGrandTotal').textContent = fmt(grandTotalCheck, 2) + ' 元';
+    $('detailGrandTotal').textContent = fmt(totalCostWithTax, 2) + ' 元';
 
     $('rebateBaseRMB').textContent = fmt(rebateBaseRMB, 2) + ' 元';
     $('maxRebate').textContent = fmt(maxRebate, 2) + ' 元';
