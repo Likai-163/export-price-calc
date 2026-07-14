@@ -1042,6 +1042,8 @@ function calc() {
     const insuranceRate = getVal('insuranceRate') / 1000;
     const profitRate = getVal('profitRate') / 100;
     const centralRate = getVal('centralRate');
+    // 报价汇率 = 央行中间汇率 - 0.01
+    $('lockedRate').value = (centralRate - 0.01).toFixed(4);
     const lockedRate = getVal('lockedRate');
     const taxRebateRate = getVal('taxRebateRate') / 100;
     const depositRate = getVal('depositRate') / 100;
@@ -1149,7 +1151,7 @@ function recalcFinal() {
     const revenue = finalPrice * _quantity * _lockedRate;
     const profit = revenue - _totalCostWithTax;
     const totalProfitWithRebate = profit + _compliantRebate;
-    const margin = revenue > 0 ? (profit / revenue * 100) : 0;
+    const margin = revenue > 0 ? ((profit + _compliantRebate) / revenue * 100) : 0;
     $('finalTotalUSD2').textContent = fmt(totalUSD, 2) + ' USD';
     $('finalRevenueRMB').textContent = fmt(revenue, 2) + ' 元';
     $('finalActualProfit').textContent = fmt(profit, 2) + ' 元';
