@@ -802,6 +802,27 @@
 
     <div class="card">
         <div class="card-header" onclick="toggle(this)">
+            <span class="title"><span class="dot"></span>💵 最终报价测算</span>
+            <span class="arrow open">▼</span>
+        </div>
+        <div class="card-body open">
+            <div class="form-row">
+                <span class="form-label">最终报价</span>
+                <div class="form-input-wrap">
+                    <input type="number" id="finalPriceInput" class="form-input" value="" step="0.01" oninput="recalcFinal()">
+                    <span class="suffix">USD/kg</span>
+                </div>
+            </div>
+            <div class="sub-result highlight">
+                <div class="line"><span>实际收入（RMB）</span><span id="finalRevenueRMB">--.-- 元</span></div>
+                <div class="line" style="font-weight:700;color:var(--primary);font-size:13px;"><span>实际利润</span><span id="finalActualProfit">--.-- 元</span></div>
+                <div class="line" style="color:var(--text-secondary);"><span>实际利润率</span><span id="finalProfitMargin">--.-- %</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header" onclick="toggle(this)">
             <span class="title">📊 成本构成明细</span>
             <span class="arrow">▼</span>
         </div>
@@ -842,6 +863,9 @@
 </div><!-- /mainApp -->
 
 <script>
+// =================== 共享变量（calc 与 recalcFinal 通信） ===================
+let _totalCostWithTax = 0, _quantity = 0, _lockedRate = 0;
+
 // =================== 默认参数配置 ===================
 const DEFAULTS = {
     '八角': {
@@ -1047,6 +1071,13 @@ function calc() {
     const finalUnitPriceUSDPerKg = finalTotalUSD / quantity;
     const finalUnitPriceUSDPerTon = (finalTotalUSD / quantity) * 1000;
 
+    // 同步全局变量 + 最终报价默认值
+    _totalCostWithTax = totalCostWithTax;
+    _quantity = quantity;
+    _lockedRate = lockedRate;
+    $('finalPriceInput').value = finalUnitPriceUSDPerKg.toFixed(2);
+    recalcFinal();
+
     let rebateBaseRMB = 0;
     // 退税只按货物成本（采购成本）计算，不包含其他费用
     rebateBaseRMB = invoiceTotalWithoutTax;
@@ -1098,6 +1129,23 @@ function calc() {
     $('compliantRebate').textContent = fmt(compliantRebate, 2) + ' 元';
     $('depositUSD').textContent = fmt(depositUSD, 2) + ' USD';
     $('balanceUSD').textContent = fmt(balanceUSD, 2) + ' USD';
+}
+
+// =================== 最终报价反推利润 ===================
+function recalcFinal() {
+    const finalPrice = getVal('finalPriceInput');
+    if (finalPrice <= 0 || _quantity <= 0 || _lockedRate <= 0) {
+        $('finalRevenueRMB').textContent = '--.-- 元';
+        $('finalActualProfit').textContent = '--.-- 元';
+        $('finalProfitMargin').textContent = '--.-- %';
+        return;
+    }
+    const revenue = finalPrice * _quantity * _lockedRate;
+    const profit = revenue - _totalCostWithTax;
+    const margin = revenue > 0 ? (profit / revenue * 100) : 0;
+    $('finalRevenueRMB').textContent = fmt(revenue, 2) + ' 元';
+    $('finalActualProfit').textContent = fmt(profit, 2) + ' 元';
+    $('finalProfitMargin').textContent = fmt(margin, 2) + ' %';
 }
 
 // =================== 密码保护 ===================
