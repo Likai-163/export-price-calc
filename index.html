@@ -7,59 +7,65 @@
     <title>出口报价计算器</title>
     <style>
         :root {
-            --primary: #0f2b4a;
-            --primary-light: #1a4a7a;
-            --primary-gradient: linear-gradient(135deg, #0f2b4a 0%, #1e5799 100%);
-            --accent: #e8a838;
-            --accent-light: #f5d48a;
-            --success: #27ae60;
-            --danger: #e74c3c;
-            --text: #1a1a2e;
-            --text-secondary: #6b7280;
-            --bg: #f1f4f9;
+            --primary: #1a2332;
+            --primary-light: #263548;
+            --primary-gradient: linear-gradient(160deg, #1a2332 0%, #1f3044 100%);
+            --accent: #b8943e;
+            --accent-light: #d4b96a;
+            --accent-bg: #faf6ed;
+            --success: #2d7d46;
+            --danger: #c0392b;
+            --text: #1e1e24;
+            --text-secondary: #5f6b7a;
+            --text-muted: #8f99a8;
+            --bg: #eef0f4;
             --card-bg: #ffffff;
-            --border: #e8ecf1;
-            --shadow: 0 2px 12px rgba(15,43,74,0.08);
-            --radius: 14px;
-            --radius-sm: 10px;
+            --border: #dde1e8;
+            --border-light: #eef0f4;
+            --shadow-sm: 0 1px 3px rgba(26,35,50,0.04);
+            --shadow: 0 1px 4px rgba(26,35,50,0.06), 0 2px 8px rgba(26,35,50,0.03);
+            --radius: 6px;
+            --radius-sm: 4px;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", Arial, sans-serif;
             background: var(--bg); color: var(--text); padding: 0 0 70px 0; min-height: 100vh;
+            -webkit-font-smoothing: antialiased; font-size: 14px; line-height: 1.5;
         }
-        input, select, button, textarea { font-family: inherit; }
+        input, select, button, textarea { font-family: inherit; font-size: inherit; }
 
         /* ===== 密码锁 ===== */
         #loginScreen {
             display: none; position: fixed; inset: 0; z-index: 999;
             background: var(--primary-gradient);
-            display: none; align-items: center; justify-content: center; padding: 24px;
+            align-items: center; justify-content: center; padding: 24px;
         }
         #loginScreen:only-child { display: flex; }
         .login-box {
-            background: rgba(255,255,255,0.12); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-radius: 24px; padding: 40px 28px; width: 100%; max-width: 340px;
-            border: 1px solid rgba(255,255,255,0.15); text-align: center;
+            background: rgba(255,255,255,0.06); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border-radius: 8px; padding: 44px 32px; width: 100%; max-width: 360px;
+            border: 1px solid rgba(255,255,255,0.1); text-align: center;
         }
-        .login-icon { width: 72px; height: 72px; background: var(--accent); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 34px; box-shadow: 0 8px 24px rgba(232,168,56,0.3); }
-        .login-box h2 { color: #fff; font-size: 20px; font-weight: 700; letter-spacing: 0.5px; }
-        .login-box .sub { color: rgba(255,255,255,0.6); font-size: 13px; margin: 6px 0 24px; }
+        .login-icon { width: 56px; height: 56px; background: rgba(184,148,62,0.15); border: 1px solid rgba(184,148,62,0.3); border-radius: 8px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .login-box h2 { color: #fff; font-size: 18px; font-weight: 600; letter-spacing: 0.5px; }
+        .login-box .sub { color: rgba(255,255,255,0.5); font-size: 13px; margin: 8px 0 28px; font-weight: 400; }
         .login-box input {
-            width: 100%; height: 48px; background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.2);
-            border-radius: 12px; padding: 0 16px; font-size: 18px; color: #fff; text-align: center; outline: none; letter-spacing: 8px;
-            transition: all 0.3s; font-weight: 600;
+            width: 100%; height: 46px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 4px; padding: 0 16px; font-size: 17px; color: #fff; text-align: center; outline: none; letter-spacing: 6px;
+            transition: all 0.2s; font-weight: 500;
         }
-        .login-box input::placeholder { color: rgba(255,255,255,0.3); letter-spacing: 0; font-weight: 400; }
-        .login-box input:focus { border-color: var(--accent); background: rgba(255,255,255,0.2); }
+        .login-box input::placeholder { color: rgba(255,255,255,0.25); letter-spacing: 0; font-weight: 400; font-size: 14px; }
+        .login-box input:focus { border-color: var(--accent); background: rgba(255,255,255,0.12); }
         .login-btn {
-            width: 100%; height: 48px; background: var(--accent); border: none; border-radius: 12px;
-            font-size: 16px; font-weight: 700; color: var(--primary); margin-top: 16px; cursor: pointer;
-            transition: all 0.2s; letter-spacing: 2px; box-shadow: 0 4px 16px rgba(232,168,56,0.3);
+            width: 100%; height: 46px; background: var(--accent); border: none; border-radius: 4px;
+            font-size: 14px; font-weight: 600; color: #fff; margin-top: 20px; cursor: pointer;
+            transition: all 0.2s; letter-spacing: 2px;
         }
-        .login-btn:active { transform: scale(0.97); }
-        .login-error { color: #fca5a5; font-size: 13px; margin-top: 10px; display: none; }
-        .login-footer { color: rgba(255,255,255,0.3); font-size: 11px; margin-top: 24px; }
+        .login-btn:hover { background: #c49f48; }
+        .login-btn:active { transform: scale(0.98); opacity: 0.9; }
+        .login-error { color: #e88c8c; font-size: 12px; margin-top: 12px; display: none; }
+        .login-footer { color: rgba(255,255,255,0.25); font-size: 11px; margin-top: 28px; letter-spacing: 0.5px; }
 
         /* ===== 主App ===== */
         #mainApp { display: none; }
@@ -67,157 +73,160 @@
 
         /* ===== 头部 ===== */
         .app-header {
-            background: var(--primary-gradient); padding: 48px 20px 24px; position: relative; overflow: hidden;
+            background: var(--primary-gradient); padding: 40px 20px 28px; position: relative; overflow: hidden;
         }
         .app-header::after {
-            content: ''; position: absolute; top: -60%; right: -30%; width: 200px; height: 200px;
-            background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%); border-radius: 50%;
+            content: ''; position: absolute; top: 0; right: 0; width: 120px; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.02));
         }
-        .app-header::before {
-            content: ''; position: absolute; bottom: -40%; left: -20%; width: 160px; height: 160px;
-            background: radial-gradient(circle, rgba(232,168,56,0.08) 0%, transparent 70%); border-radius: 50%;
-        }
-        .app-header h1 { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: 1px; position: relative; z-index: 1; }
-        .app-header p { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 4px; position: relative; z-index: 1; }
+        .app-header h1 { font-size: 18px; font-weight: 600; color: #fff; letter-spacing: 0.5px; position: relative; z-index: 1; }
+        .app-header p { font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 4px; position: relative; z-index: 1; font-weight: 400; }
         .header-badge {
-            display: inline-block; background: var(--accent); color: var(--primary); font-size: 10px;
-            font-weight: 700; padding: 2px 10px; border-radius: 20px; margin-top: 8px; letter-spacing: 0.5px;
+            display: inline-block; background: rgba(184,148,62,0.2); color: var(--accent-light); font-size: 10px;
+            font-weight: 500; padding: 3px 10px; border-radius: 3px; margin-top: 10px; letter-spacing: 0.5px;
+            border: 1px solid rgba(184,148,62,0.2); position: relative; z-index: 1;
         }
 
         /* ===== Tab栏 ===== */
         .tab-bar {
-            display: flex; margin: -16px 16px 0; background: var(--card-bg); border-radius: var(--radius);
+            display: flex; margin: -14px 16px 0; background: var(--card-bg); border-radius: var(--radius);
             box-shadow: var(--shadow); overflow: hidden; position: relative; z-index: 2;
+            border: 1px solid var(--border);
         }
         .tab-bar .tab {
-            flex: 1; text-align: center; padding: 14px 8px; font-size: 14px; font-weight: 500;
-            color: var(--text-secondary); cursor: pointer; transition: all 0.25s; position: relative;
+            flex: 1; text-align: center; padding: 13px 8px; font-size: 13px; font-weight: 500;
+            color: var(--text-secondary); cursor: pointer; transition: all 0.2s; position: relative;
+            letter-spacing: 0.3px;
         }
-        .tab-bar .tab.active { color: var(--primary); font-weight: 700; }
+        .tab-bar .tab.active { color: var(--primary); font-weight: 600; background: #fafbfc; }
         .tab-bar .tab.active::after {
-            content: ''; position: absolute; bottom: 0; left: 25%; width: 50%; height: 3px;
-            background: var(--primary); border-radius: 3px 3px 0 0;
+            content: ''; position: absolute; bottom: 0; left: 30%; width: 40%; height: 2px;
+            background: var(--accent);
         }
-        .tab-bar .tab .icon { display: block; font-size: 18px; margin-bottom: 2px; }
-        .tab-content { display: none; padding: 12px 16px; }
+        .tab-bar .tab:first-child { border-right: 1px solid var(--border-light); }
+        .tab-bar .tab .icon { display: block; font-size: 15px; margin-bottom: 2px; }
+        .tab-content { display: none; padding: 16px 16px; }
         .tab-content.active { display: block; }
 
         /* ===== 卡片 ===== */
         .card {
-            background: var(--card-bg); border-radius: var(--radius); margin-bottom: 12px;
-            box-shadow: var(--shadow); overflow: hidden; transition: all 0.3s;
+            background: var(--card-bg); border-radius: var(--radius); margin-bottom: 10px;
+            border: 1px solid var(--border); overflow: hidden; transition: all 0.2s;
+            box-shadow: var(--shadow-sm);
         }
         .card-header {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 14px 16px; cursor: pointer; user-select: none; position: relative;
+            padding: 13px 16px; cursor: pointer; user-select: none; position: relative;
+            background: #fafbfc;
         }
         .card-header .title {
-            font-size: 14px; font-weight: 600; color: var(--primary); display: flex; align-items: center; gap: 8px;
+            font-size: 13px; font-weight: 600; color: var(--primary); display: flex; align-items: center; gap: 8px;
+            letter-spacing: 0.3px;
         }
         .card-header .title .dot {
-            width: 4px; height: 4px; background: var(--accent); border-radius: 50%; display: inline-block;
+            width: 3px; height: 16px; background: var(--accent); border-radius: 2px; display: inline-block;
         }
         .card-header .arrow {
-            width: 22px; height: 22px; border-radius: 50%; background: var(--bg);
-            display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--text-secondary);
-            transition: transform 0.3s;
+            font-size: 10px; color: var(--text-muted); transition: transform 0.2s; font-weight: 700;
         }
         .card-header .arrow.open { transform: rotate(180deg); }
-        .card-body { padding: 0 16px 16px; display: none; }
+        .card-body { padding: 0 16px 14px; display: none; }
         .card-body.open { display: block; }
         .card-body:empty { display: none; }
 
         /* ===== 表单 ===== */
         .form-row {
-            display: flex; align-items: center; margin-bottom: 10px; min-height: 40px;
+            display: flex; align-items: center; margin-bottom: 10px; min-height: 38px;
         }
         .form-row:last-child { margin-bottom: 0; }
         .form-label {
-            font-size: 13px; color: var(--text-secondary); min-width: 90px; flex-shrink: 0;
-            padding-right: 10px; font-weight: 500;
+            font-size: 12px; color: var(--text-secondary); min-width: 85px; flex-shrink: 0;
+            padding-right: 10px; font-weight: 500; letter-spacing: 0.2px;
         }
-        .form-label-sm { min-width: 72px; }
+        .form-label-sm { min-width: 65px; }
         .form-input-wrap { flex: 1; display: flex; align-items: center; position: relative; }
         .form-input {
-            flex: 1; height: 38px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
-            padding: 0 12px; font-size: 14px; color: var(--text); background: #f8fafc;
-            outline: none; min-width: 0; width: 100%; transition: all 0.25s;
+            flex: 1; height: 36px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+            padding: 0 10px; font-size: 13px; color: var(--text); background: #fafbfc;
+            outline: none; min-width: 0; width: 100%; transition: all 0.2s;
             -webkit-appearance: none; appearance: none;
         }
-        .form-input:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(15,43,74,0.08); }
-        .form-input::placeholder { color: #b0b8c4; }
+        .form-input:focus { border-color: #8f9fb5; background: #fff; box-shadow: 0 0 0 2px rgba(26,35,50,0.04); }
+        .form-input::placeholder { color: #b4beca; font-size: 12px; }
         .form-input-wrap .suffix {
-            font-size: 11px; color: #9ca3af; margin-left: 6px; white-space: nowrap; font-weight: 500; min-width: 32px;
+            font-size: 11px; color: var(--text-muted); margin-left: 8px; white-space: nowrap; font-weight: 500; min-width: 28px;
         }
         .form-input-wrap .prefix {
-            font-size: 11px; color: #9ca3af; margin-right: 6px; white-space: nowrap;
+            font-size: 11px; color: var(--text-muted); margin-right: 6px; white-space: nowrap;
         }
 
         .select-wrap { flex: 1; position: relative; }
         .select-wrap select {
-            width: 100%; height: 38px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
-            padding: 0 30px 0 12px; font-size: 13px; color: var(--text); background: #f8fafc;
-            outline: none; transition: all 0.25s; cursor: pointer;
+            width: 100%; height: 36px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+            padding: 0 28px 0 10px; font-size: 13px; color: var(--text); background: #fafbfc;
+            outline: none; transition: all 0.2s; cursor: pointer;
             -webkit-appearance: none; appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239ca3af' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238f99a8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
             background-repeat: no-repeat; background-position: right 10px center;
         }
-        .select-wrap select:focus { border-color: var(--primary); background-color: #fff; box-shadow: 0 0 0 3px rgba(15,43,74,0.08); }
+        .select-wrap select:focus { border-color: #8f9fb5; background-color: #fff; box-shadow: 0 0 0 2px rgba(26,35,50,0.04); }
 
         /* ===== 结果框 ===== */
         .sub-result {
-            background: #f8fafc; border-radius: var(--radius-sm); padding: 10px 12px; margin-top: 10px;
-            border: 1px solid var(--border);
+            background: #f8fafb; border-radius: var(--radius-sm); padding: 10px 12px; margin-top: 10px;
+            border: 1px solid var(--border-light);
         }
-        .sub-result.highlight { background: #f0f7ff; border-color: #bdd7ee; }
-        .sub-result .line { font-size: 12px; color: var(--text-secondary); line-height: 2; display: flex; justify-content: space-between; }
+        .sub-result.highlight { background: #f8f6f1; border-color: #e0d5bc; }
+        .sub-result .line { font-size: 12px; color: var(--text-secondary); line-height: 2.2; display: flex; justify-content: space-between; }
         .sub-result .line span { font-weight: 600; color: var(--text); }
 
         /* ===== 最终结果卡片 ===== */
         .result-hero {
-            background: var(--primary-gradient); border-radius: var(--radius); padding: 20px; text-align: center;
+            background: var(--primary-gradient); border-radius: var(--radius); padding: 24px 20px; text-align: center;
             margin-bottom: 12px; position: relative; overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.05);
         }
         .result-hero::after {
-            content: ''; position: absolute; top: -50%; right: -30%; width: 200px; height: 200px;
-            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%); border-radius: 50%;
+            content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 80px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.015));
         }
-        .result-hero .label { font-size: 11px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 4px; position: relative; z-index: 1; }
-        .result-hero .value { font-size: 40px; font-weight: 800; color: #fff; line-height: 1.1; letter-spacing: -1px; position: relative; z-index: 1; }
-        .result-hero .value .currency { font-size: 18px; font-weight: 600; opacity: 0.7; margin-right: 4px; }
-        .result-hero .sub-value { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 6px; position: relative; z-index: 1; }
+        .result-hero .label { font-size: 10px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px; position: relative; z-index: 1; font-weight: 500; }
+        .result-hero .value { font-size: 42px; font-weight: 700; color: #fff; line-height: 1.1; letter-spacing: -1px; position: relative; z-index: 1; }
+        .result-hero .value .currency { font-size: 16px; font-weight: 500; opacity: 0.6; margin-right: 2px; }
+        .result-hero .sub-value { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 8px; position: relative; z-index: 1; font-weight: 400; }
 
-        .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+        .result-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
         .result-item {
-            background: #f8fafc; border-radius: var(--radius-sm); padding: 12px; text-align: center;
-            border: 1px solid var(--border); transition: all 0.2s;
+            background: var(--card-bg); border-radius: var(--radius); padding: 14px 10px; text-align: center;
+            border: 1px solid var(--border); transition: all 0.15s;
         }
-        .result-item:active { transform: scale(0.97); }
-        .result-item .label { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
+        .result-item:active { background: #fafbfc; }
+        .result-item .label { font-size: 10px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; letter-spacing: 0.3px; }
         .result-item .value {
-            font-size: 18px; font-weight: 700; color: var(--text); word-break: break-all;
+            font-size: 16px; font-weight: 700; color: var(--text); word-break: break-all;
         }
-        .result-item .value.usd { color: #059669; }
-        .result-item .value.rmb { color: #dc2626; }
-        .result-item .sub-value { font-size: 11px; color: #9ca3af; margin-top: 2px; }
+        .result-item .value.usd { color: #2d7d46; }
+        .result-item .value.rmb { color: #c0392b; }
+        .result-item .sub-value { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
 
         /* ===== 按钮 ===== */
         .btn-primary {
-            width: 100%; height: 44px; background: var(--primary); color: #fff; border: none;
-            border-radius: var(--radius-sm); font-size: 15px; font-weight: 600; cursor: pointer;
+            width: 100%; height: 42px; background: var(--primary); color: #fff; border: none;
+            border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer;
             transition: all 0.2s; letter-spacing: 0.5px;
         }
         .btn-primary:active { transform: scale(0.98); opacity: 0.9; }
-        .btn-primary.accent { background: var(--accent); color: var(--primary); }
+        .btn-primary.accent { background: var(--accent); color: #fff; }
         .btn-outline {
-            width: 100%; height: 40px; background: transparent; color: var(--text-secondary);
-            border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 13px;
-            cursor: pointer; transition: all 0.2s; margin-top: 12px;
+            width: 100%; height: 38px; background: transparent; color: var(--text-secondary);
+            border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 12px;
+            cursor: pointer; transition: all 0.2s; margin-top: 12px; font-weight: 500;
         }
-        .btn-outline:active { background: var(--bg); }
+        .btn-outline:hover { background: #fafbfc; }
+        .btn-outline:active { background: #f0f2f5; }
 
         /* ===== 使用说明 ===== */
-        .note-text { font-size: 12px; color: var(--text-secondary); line-height: 1.8; }
+        .note-text { font-size: 12px; color: var(--text-secondary); line-height: 2; }
         .note-text p { margin-bottom: 4px; }
 
         /* ===== 消息提示 ===== */
@@ -225,42 +234,45 @@
 
         /* ===== 响应式 ===== */
         @media (max-width: 380px) {
-            .form-label { min-width: 72px; font-size: 12px; }
-            .result-hero .value { font-size: 32px; }
+            .form-label { min-width: 70px; font-size: 11px; }
+            .result-hero .value { font-size: 34px; }
+            .result-item .value { font-size: 14px; }
         }
         @media (min-width: 500px) {
-            body { max-width: 480px; margin: 0 auto; }
-            .app-header { border-radius: 0 0 24px 24px; }
+            body { max-width: 500px; margin: 0 auto; }
+            .app-header { border-radius: 0 0 12px 12px; }
         }
 
         /* ===== 暗黑模式 ===== */
         @media (prefers-color-scheme: dark) {
             :root {
-                --bg: #0d1117;
-                --card-bg: #161b22;
-                --border: #21262d;
-                --text: #e6edf3;
-                --text-secondary: #8b949e;
-                --shadow: 0 2px 12px rgba(0,0,0,0.3);
-                --primary: #1f6feb;
-                --primary-light: #58a6ff;
-                --primary-gradient: linear-gradient(135deg, #0d1117 0%, #1f2937 100%);
+                --bg: #11161c; --card-bg: #181d24; --border: #232a33; --border-light: #1e252e;
+                --text: #e1e5ea; --text-secondary: #8d96a3; --text-muted: #626b77;
+                --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
+                --shadow: 0 1px 4px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2);
+                --primary: #93b4d4; --primary-light: #a8c8e4;
+                --primary-gradient: linear-gradient(160deg, #151d26 0%, #1a242e 100%);
+                --accent: #d4b96a; --accent-bg: #1e1c14;
             }
-            .form-input { background: #0d1117; color: #e6edf3; }
-            .form-input:focus { background: #161b22; }
-            .select-wrap select { background-color: #0d1117; color: #e6edf3; }
-            .select-wrap select:focus { background-color: #161b22; }
-            .sub-result { background: #0d1117; }
-            .sub-result.highlight { background: #0d2137; border-color: #1f4a7a; }
-            .result-item { background: #0d1117; }
-            .result-hero { background: linear-gradient(135deg, #0d1117, #1f2937); }
-            .tab-bar { background: #161b22; }
-            .card-header .arrow { background: #21262d; }
-            .app-header { background: linear-gradient(135deg, #0d1117 0%, #1f2937 100%); }
-            .login-box { background: rgba(22,27,34,0.9); }
-            .login-box input { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.1); }
-            .result-item .value.usd { color: #3fb950; }
-            .result-item .value.rmb { color: #f85149; }
+            .form-input { background: #141920; color: #e1e5ea; border-color: #232a33; }
+            .form-input:focus { background: #181d24; border-color: #576574; box-shadow: none; }
+            .select-wrap select { background-color: #141920; color: #e1e5ea; border-color: #232a33; }
+            .select-wrap select:focus { background-color: #181d24; border-color: #576574; box-shadow: none; }
+            .sub-result { background: #141920; border-color: #1e252e; }
+            .sub-result.highlight { background: #1a1910; border-color: #3d3418; }
+            .result-item { background: #181d24; border-color: #232a33; }
+            .result-item .value.usd { color: #4fb868; }
+            .result-item .value.rmb { color: #e0635a; }
+            .result-hero { background: linear-gradient(160deg, #151d26, #1a242e); border-color: rgba(255,255,255,0.03); }
+            .tab-bar { background: #181d24; border-color: #232a33; }
+            .tab-bar .tab.active { background: #141920; }
+            .tab-bar .tab:first-child { border-right-color: #1e252e; }
+            .card-header { background: #1a1f27; }
+            .card-header .arrow { color: #626b77; }
+            .app-header { background: linear-gradient(160deg, #151d26 0%, #1a242e 100%); }
+            .login-box { background: rgba(24,29,36,0.9); border-color: rgba(255,255,255,0.06); }
+            .login-box input { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.08); }
+            .btn-outline:hover { background: #1a1f27; }
         }
     </style>
 </head>
@@ -287,13 +299,13 @@
 <div class="app-header">
     <h1>📊 出口报价测算</h1>
     <p>玉林福达国际贸易 · 手机快速报价</p>
-    <div class="header-badge">⚡ 实时计算</div>
+    <div class="header-badge">FORTUNE INT'L · TRADING</div>
 </div>
 
 <!-- Tab -->
 <div class="tab-bar" id="tabBar">
-    <div class="tab active" data-tab="tab-input"><span class="icon">📝</span>录入报价</div>
-    <div class="tab" data-tab="tab-result"><span class="icon">📈</span>结果概览</div>
+    <div class="tab active" data-tab="tab-input">录入报价</div>
+    <div class="tab" data-tab="tab-result">结果概览</div>
 </div>
 
 <div id="tab-input" class="tab-content active">
