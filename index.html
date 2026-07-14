@@ -1085,7 +1085,9 @@ function calc() {
     const finalUnitPriceUSDPerTon = (finalTotalUSD / quantity) * 1000;
 
     // 同步全局变量 + 最终报价默认值
-    _totalCostWithTax = totalCostWithTax;
+    // 实际成本 = 实际支付价（非发票价）+ 各项费用
+    const actualTotalPaid = actualUnitPrice * quantity;
+    _totalCostWithTax = actualTotalPaid + packingSubtotal + logisticsSubtotal + certSubtotal + shippingSubtotal;
     _quantity = quantity;
     _lockedRate = lockedRate;
     $('finalPriceInput').value = finalUnitPriceUSDPerKg.toFixed(2);
