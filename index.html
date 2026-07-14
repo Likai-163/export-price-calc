@@ -1076,12 +1076,12 @@ function calc() {
     const totalCostNoTax = invoiceTotalWithoutTax + packingSubtotal + logisticsSubtotal + certSubtotal + shippingSubtotal;
     const totalCostWithTax = invoiceTotalWithTax + packingSubtotal + logisticsSubtotal + certSubtotal + shippingSubtotal;
     const taxDiff = totalCostWithTax - totalCostNoTax;
-    // 报价成本 = 实际支付价 + 各项费用（真实现金流）
+    // 报价成本 = 实际支付价 + 各项费用（真实现金流，用于最终报价测算）
     const actualTotalPaid = actualUnitPrice * quantity;
     const pricingCost = actualTotalPaid + packingSubtotal + logisticsSubtotal + certSubtotal + shippingSubtotal;
-    // 销售利润率：利润 ÷ 售价 = profitRate，因此 售价 = 成本 ÷ (1 - profitRate)
-    const finalTotalRMB = pricingCost / (1 - profitRate);
-    const profitAmount = finalTotalRMB - pricingCost;
+    // 建议售价基于总成本（发票含税）= 成本明细显示值，利润率在这里体现
+    const finalTotalRMB = totalCostWithTax / (1 - profitRate);
+    const profitAmount = finalTotalRMB - totalCostWithTax;
     const rateDiffAmount = finalTotalRMB * (centralRate - lockedRate);
     const finalTotalUSD = finalTotalRMB / lockedRate;
     const finalUnitPriceUSDPerKg = finalTotalUSD / quantity;
