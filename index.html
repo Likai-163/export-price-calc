@@ -195,7 +195,7 @@
         .result-hero .value .currency { font-size: 16px; font-weight: 500; opacity: 0.6; margin-right: 2px; }
         .result-hero .sub-value { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 8px; position: relative; z-index: 1; font-weight: 400; }
 
-        .result-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+        .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
         .result-item {
             background: var(--card-bg); border-radius: var(--radius); padding: 14px 10px; text-align: center;
             border: 1px solid var(--border); transition: all 0.15s;
@@ -793,6 +793,11 @@
             <div class="value usd" id="resultUnitPriceUSD">--.--</div>
             <div class="sub-value">美元 / 吨</div>
         </div>
+        <div class="result-item">
+            <div class="label">利润</div>
+            <div class="value rmb" id="resultProfit">--.--</div>
+            <div class="sub-value">元</div>
+        </div>
     </div>
 
     <div class="card">
@@ -1077,6 +1082,7 @@ function calc() {
     $('resultTotalRMB').textContent = fmt(finalTotalRMB, 2);
     $('resultTotalUSD').textContent = fmt(finalTotalUSD, 2);
     $('resultUnitPriceUSD').textContent = fmt(finalUnitPriceUSDPerTon, 2);
+    $('resultProfit').textContent = fmt(profitAmount, 2);
     $('detailProcurement').textContent = fmt(invoiceTotalWithTax, 2) + ' 元';
     $('detailPacking').textContent = fmt(packingSubtotal, 2) + ' 元';
     $('detailLogistics').textContent = fmt(logisticsSubtotal, 2) + ' 元';
