@@ -1173,29 +1173,47 @@ async function fetchCentralRate() {
     const btn = document.querySelector('.rate-fetch-btn');
     btn.classList.add('loading');
     btn.textContent = '⏳';
+    btn.style.background = '';
+
+    // 多源尝试：中国外汇交易中心 > CDN > 免费API
     const apis = [
-        'https://api.exchangerate-api.com/v4/latest/USD',
-        'https://open.er-api.com/v6/latest/USD'
+        // 中国外汇交易中心 JSON 接口（国内优先）
+        { url: 'https://www.chinamoney.com.cn/ags/msites/u-bjccpr/rmbParityQry', parse: d => {
+            const list = d?.records || d?.data?.list || d?.data || [];
+            const usd = list.find?.(r => r?.ccyPair === 'USD/CNY' || r?.code === 'USD');
+            return usd?.parity || usd?.rate || usd?.value;
+        }},
+        // CDN 托管的汇率数据（国内可访问）
+        { url: 'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json', parse: d => d?.usd?.cny },
+        // 免费汇率 API
+        { url: 'https://api.exchangerate-api.com/v4/latest/USD', parse: d => d?.rates?.CNY },
+        { url: 'https://open.er-api.com/v6/latest/USD', parse: d => d?.rates?.CNY },
+        // 备用
+        { url: 'https://currency-api.pages.dev/v1/currencies/usd.json', parse: d => d?.usd?.cny }
     ];
-    for (const url of apis) {
+
+    for (const api of apis) {
         try {
-            const resp = await fetch(url, { signal: AbortSignal.timeout(8000) });
+            const resp = await fetch(api.url, { signal: AbortSignal.timeout(10000) });
+            if (!resp.ok) continue;
             const data = await resp.json();
-            const rate = data.rates?.CNY;
-            if (rate && rate > 1) {
-                $('centralRate').value = rate.toFixed(4);
+            const rate = api.parse(data);
+            if (rate && rate > 1 && rate < 20) {
+                $('centralRate').value = Number(rate).toFixed(4);
                 btn.textContent = '✓';
                 btn.style.background = '#2d7d46';
+                btn.classList.remove('loading');
                 setTimeout(() => { btn.textContent = '↻'; btn.style.background = ''; }, 1500);
                 calc();
                 return;
             }
-        } catch (e) { /* skip */ }
+        } catch (e) { /* 尝试下一个源 */ }
     }
+
     btn.textContent = '✗';
     btn.style.background = '#c0392b';
-    setTimeout(() => { btn.textContent = '↻'; btn.style.background = ''; }, 2000);
     btn.classList.remove('loading');
+    setTimeout(() => { btn.textContent = '↻'; btn.style.background = ''; }, 3000);
 }
 
 // =================== 密码保护 ===================
