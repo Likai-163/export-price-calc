@@ -1079,8 +1079,8 @@ function calc() {
     // 报价成本 = 实际支付价 + 各项费用（真实现金流，用于最终报价测算）
     const actualTotalPaid = actualUnitPrice * quantity;
     const pricingCost = actualTotalPaid + packingSubtotal + logisticsSubtotal + certSubtotal + shippingSubtotal;
-    // 建议售价基于总成本（发票含税）= 成本明细显示值，利润率在这里体现
-    const finalTotalRMB = totalCostWithTax / (1 - profitRate);
+    // 建议售价 = 总成本 × (1 + 目标利润率)
+    const finalTotalRMB = totalCostWithTax * (1 + profitRate);
     const profitAmount = finalTotalRMB - totalCostWithTax;
     const rateDiffAmount = finalTotalRMB * (centralRate - lockedRate);
     const finalTotalUSD = finalTotalRMB / lockedRate;
