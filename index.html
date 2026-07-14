@@ -781,11 +781,6 @@
             <div class="value usd" id="resultUnitPriceUSD">--.--</div>
             <div class="sub-value">美元 / 吨</div>
         </div>
-        <div class="result-item">
-            <div class="label">利润（含9%退税）</div>
-            <div class="value" id="resultProfit" style="color:#059669;">--.--</div>
-            <div class="sub-value">元</div>
-        </div>
     </div>
 
     <div class="card">
@@ -1070,8 +1065,6 @@ function calc() {
     $('resultTotalRMB').textContent = fmt(finalTotalRMB, 2);
     $('resultTotalUSD').textContent = fmt(finalTotalUSD, 2);
     $('resultUnitPriceUSD').textContent = fmt(finalUnitPriceUSDPerTon, 2);
-    $('resultProfit').textContent = fmt(totalProfitWithRebate, 2);
-
     $('detailProcurement').textContent = fmt(invoiceTotalWithTax, 2) + ' 元';
     $('detailPacking').textContent = fmt(packingSubtotal, 2) + ' 元';
     $('detailLogistics').textContent = fmt(logisticsSubtotal, 2) + ' 元';
