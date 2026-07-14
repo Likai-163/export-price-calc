@@ -1133,7 +1133,7 @@ function calc() {
     $('resultTotalUSD').textContent = fmt(finalTotalUSD, 2);
     $('resultUnitPriceUSD').textContent = fmt(finalUnitPriceUSDPerTon, 2);
     $('resultProfit').textContent = fmt(profitAmount, 2);
-    $('detailProcurement').textContent = fmt(invoiceTotalWithTax, 2) + ' 元';
+    $('detailProcurement').textContent = fmt(actualTotalPaid, 2) + ' 元';
     $('detailPacking').textContent = fmt(packingSubtotal, 2) + ' 元';
     $('detailLogistics').textContent = fmt(logisticsSubtotal, 2) + ' 元';
     $('detailCert').textContent = fmt(certSubtotal, 2) + ' 元';
