@@ -1076,18 +1076,19 @@ function calc() {
     const totalCostNoTax = invoiceTotalWithoutTax + packingSubtotal + logisticsSubtotal + certSubtotal + shippingSubtotal;
     const totalCostWithTax = invoiceTotalWithTax + packingSubtotal + logisticsSubtotal + certSubtotal + shippingSubtotal;
     const taxDiff = totalCostWithTax - totalCostNoTax;
+    // 报价成本 = 实际支付价 + 各项费用（真实现金流）
+    const actualTotalPaid = actualUnitPrice * quantity;
+    const pricingCost = actualTotalPaid + packingSubtotal + logisticsSubtotal + certSubtotal + shippingSubtotal;
     // 销售利润率：利润 ÷ 售价 = profitRate，因此 售价 = 成本 ÷ (1 - profitRate)
-    const finalTotalRMB = totalCostWithTax / (1 - profitRate);
-    const profitAmount = finalTotalRMB - totalCostWithTax;
+    const finalTotalRMB = pricingCost / (1 - profitRate);
+    const profitAmount = finalTotalRMB - pricingCost;
     const rateDiffAmount = finalTotalRMB * (centralRate - lockedRate);
     const finalTotalUSD = finalTotalRMB / lockedRate;
     const finalUnitPriceUSDPerKg = finalTotalUSD / quantity;
     const finalUnitPriceUSDPerTon = (finalTotalUSD / quantity) * 1000;
 
     // 同步全局变量 + 最终报价默认值
-    // 实际成本 = 实际支付价（非发票价）+ 各项费用
-    const actualTotalPaid = actualUnitPrice * quantity;
-    _totalCostWithTax = actualTotalPaid + packingSubtotal + logisticsSubtotal + certSubtotal + shippingSubtotal;
+    _totalCostWithTax = pricingCost;
     _quantity = quantity;
     _lockedRate = lockedRate;
     $('finalPriceInput').value = finalUnitPriceUSDPerKg.toFixed(2);
@@ -1138,7 +1139,7 @@ function calc() {
     $('detailTotalCostNoTax').textContent = fmt(totalCostNoTax, 2) + ' 元';
     $('detailTotalCostWithTax').textContent = fmt(totalCostWithTax, 2) + ' 元';
     $('detailTaxDiff').textContent = fmt(taxDiff, 2) + ' 元';
-    $('detailGrandTotal').textContent = fmt(totalCostWithTax, 2) + ' 元';
+    $('detailGrandTotal').textContent = fmt(pricingCost, 2) + ' 元';
 
     $('rebateBaseRMB').textContent = fmt(rebateBaseRMB, 2) + ' 元';
     $('maxRebate').textContent = fmt(maxRebate, 2) + ' 元';
