@@ -159,6 +159,14 @@
         .form-input-wrap .prefix {
             font-size: 11px; color: var(--text-muted); margin-right: 6px; white-space: nowrap;
         }
+        .rate-fetch-btn {
+            width: 28px; height: 28px; flex-shrink: 0; margin-left: 4px;
+            background: var(--primary); color: #fff; border: none; border-radius: 3px;
+            font-size: 15px; font-weight: 700; cursor: pointer; line-height: 1;
+            transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+        }
+        .rate-fetch-btn:active { opacity: 0.7; transform: scale(0.95); }
+        .rate-fetch-btn.loading { opacity: 0.5; pointer-events: none; }
 
         .select-wrap { flex: 1; position: relative; }
         .select-wrap select {
@@ -702,6 +710,7 @@
             <span class="form-label">央行中间汇率</span>
             <div class="form-input-wrap">
                 <input type="number" id="centralRate" class="form-input" value="6.8066" step="0.0001" oninput="calc()">
+                <button type="button" class="rate-fetch-btn" onclick="fetchCentralRate()" title="获取当日中间汇率">↻</button>
                 <span class="suffix">CNY/USD</span>
             </div>
         </div>
@@ -1159,6 +1168,36 @@ function recalcFinal() {
     $('finalProfitMargin').textContent = fmt(margin, 2) + ' %';
 }
 
+// =================== 自动获取央行中间汇率 ===================
+async function fetchCentralRate() {
+    const btn = document.querySelector('.rate-fetch-btn');
+    btn.classList.add('loading');
+    btn.textContent = '⏳';
+    const apis = [
+        'https://api.exchangerate-api.com/v4/latest/USD',
+        'https://open.er-api.com/v6/latest/USD'
+    ];
+    for (const url of apis) {
+        try {
+            const resp = await fetch(url, { signal: AbortSignal.timeout(8000) });
+            const data = await resp.json();
+            const rate = data.rates?.CNY;
+            if (rate && rate > 1) {
+                $('centralRate').value = rate.toFixed(4);
+                btn.textContent = '✓';
+                btn.style.background = '#2d7d46';
+                setTimeout(() => { btn.textContent = '↻'; btn.style.background = ''; }, 1500);
+                calc();
+                return;
+            }
+        } catch (e) { /* skip */ }
+    }
+    btn.textContent = '✗';
+    btn.style.background = '#c0392b';
+    setTimeout(() => { btn.textContent = '↻'; btn.style.background = ''; }, 2000);
+    btn.classList.remove('loading');
+}
+
 // =================== 密码保护 ===================
 const DEFAULT_PASSWORD = '8888';
 
@@ -1168,6 +1207,10 @@ function initPasswordScreen() {
     if (sessionStorage.getItem('auth_ok') === '1') {
         login.style.display = 'none'; app.style.display = 'block';
         setTimeout(() => { loadDefaults(); calc(); }, 100);
+        if (!sessionStorage.getItem('rate_fetched')) {
+            setTimeout(() => fetchCentralRate(), 500);
+            sessionStorage.setItem('rate_fetched', '1');
+        }
         return;
     }
     login.style.display = 'flex'; app.style.display = 'none';
@@ -1184,6 +1227,10 @@ function checkPassword() {
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('mainApp').style.display = 'block';
         setTimeout(() => { loadDefaults(); calc(); }, 100);
+        if (!sessionStorage.getItem('rate_fetched')) {
+            setTimeout(() => fetchCentralRate(), 500);
+            sessionStorage.setItem('rate_fetched', '1');
+        }
     } else {
         document.getElementById('passwordError').style.display = 'block';
         document.getElementById('accessPassword').value = '';
