@@ -1163,12 +1163,13 @@ function recalcFinal() {
     }
     const totalUSD = finalPrice * _quantity;
     const revenue = totalUSD * _lockedRate;
-    const totalProfitWithRebate = _profitAmount + _compliantRebate;
-    const margin = revenue > 0 ? ((_profitAmount + _compliantRebate) / revenue * 100) : 0;
+    // 目标利润 = 最终报价收入 - 总成本（不再引用结果概览的_profitAmount）
+    const targetProfit = revenue - _totalCostWithTax;
+    const totalProfitWithRebate = targetProfit + _compliantRebate;
+    const margin = revenue > 0 ? (totalProfitWithRebate / revenue * 100) : 0;
     $('finalTotalUSD2').textContent = fmt(totalUSD, 2) + ' USD';
     $('finalRevenueRMB').textContent = fmt(revenue, 2) + ' 元';
-    // 目标利润 = 总成本 × 目标利润率（直接引用上面利润测算的结果）
-    $('finalActualProfit').textContent = fmt(_profitAmount, 2) + ' 元';
+    $('finalActualProfit').textContent = fmt(targetProfit, 2) + ' 元';
     $('finalTotalProfitWithRebate').textContent = fmt(totalProfitWithRebate, 2) + ' 元';
     $('finalProfitMargin').textContent = fmt(margin, 2) + ' %';
 }
