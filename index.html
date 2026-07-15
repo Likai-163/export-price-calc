@@ -1089,7 +1089,8 @@ function calc() {
     const finalUnitPriceUSDPerTon = (finalTotalUSD / quantity) * 1000;
 
     // 同步全局变量 + 最终报价默认值
-    _totalCostWithTax = pricingCost;
+    // 利润测算用票面含税总成本（发票9%），非实付现金成本（3%）
+    _totalCostWithTax = totalCostWithTax;
     _profitAmount = profitAmount;
     _quantity = quantity;
     _lockedRate = lockedRate;
