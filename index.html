@@ -1167,8 +1167,8 @@ function recalcFinal() {
     }
     const totalUSD = finalPrice * _quantity;
     const revenue = totalUSD * _lockedRate;
-    // 利润 = 最终报价 × 锁定汇率 × 采购总量 - 总成本
-    const profit = revenue - _totalCostWithTax;
+    // 利润 = 总成本 -（最终报价单价 × 锁定汇率 × 采购总量）
+    const profit = _totalCostWithTax - (finalPrice * _lockedRate * _quantity);
     const totalProfit = profit + _compliantRebate;
     const margin = revenue > 0 ? (totalProfit / revenue * 100) : 0;
     $('finalTotalUSD2').textContent = fmt(totalUSD, 2) + ' USD';
