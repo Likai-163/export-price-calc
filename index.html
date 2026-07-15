@@ -825,8 +825,9 @@
             <div class="sub-result highlight">
                 <div class="line"><span>美元总价</span><span id="finalTotalUSD2">--.-- USD</span></div>
                 <div class="line"><span>实际收入（RMB）</span><span id="finalRevenueRMB">--.-- 元</span></div>
-                <div class="line" style="font-weight:700;color:var(--primary);font-size:13px;"><span>目标利润</span><span id="finalActualProfit">--.-- 元</span></div>
-                <div class="line" style="font-weight:700;color:#059669;font-size:13px;"><span>总利润（退税+目标利润）</span><span id="finalTotalProfitWithRebate">--.-- 元</span></div>
+                <div class="line" style="font-weight:700;color:var(--primary);font-size:13px;"><span>利润</span><span id="finalActualProfit">--.-- 元</span></div>
+                <div class="line"><span>退税</span><span id="finalRebateDisplay">--.-- 元</span></div>
+                <div class="line" style="font-weight:700;color:#059669;font-size:13px;"><span>总利润</span><span id="finalTotalProfitWithRebate">--.-- 元</span></div>
                 <div class="line" style="color:var(--text-secondary);"><span>实际利润率</span><span id="finalProfitMargin">--.-- %</span></div>
             </div>
         </div>
@@ -1092,17 +1093,18 @@ function calc() {
     _profitAmount = profitAmount;
     _quantity = quantity;
     _lockedRate = lockedRate;
-    $('finalPriceInput').value = finalUnitPriceUSDPerKg.toFixed(4);
-    $('finalPriceInput').dataset.suggested = finalUnitPriceUSDPerKg.toFixed(4);
-    recalcFinal();
 
+    // 退税计算（先算好，recalcFinal 需要用到）
     let rebateBaseRMB = 0;
-    // 退税只按货物成本（采购成本）计算，不包含其他费用
     rebateBaseRMB = invoiceTotalWithoutTax;
     const maxRebate = rebateBaseRMB * taxRebateRate;
     const vatPaid = invoiceTotalWithTax - invoiceTotalWithoutTax;
     const compliantRebate = Math.min(maxRebate, vatPaid);
     _compliantRebate = compliantRebate;
+
+    $('finalPriceInput').value = finalUnitPriceUSDPerKg.toFixed(4);
+    $('finalPriceInput').dataset.suggested = finalUnitPriceUSDPerKg.toFixed(4);
+    recalcFinal();
     const totalProfitWithRebate = profitAmount + compliantRebate;
     const depositUSD = finalTotalUSD * depositRate;
     const balanceUSD = finalTotalUSD * (1 - depositRate);
@@ -1157,20 +1159,22 @@ function recalcFinal() {
         $('finalTotalUSD2').textContent = '--.-- USD';
         $('finalRevenueRMB').textContent = '--.-- 元';
         $('finalActualProfit').textContent = '--.-- 元';
+        $('finalRebateDisplay').textContent = '--.-- 元';
         $('finalTotalProfitWithRebate').textContent = '--.-- 元';
         $('finalProfitMargin').textContent = '--.-- %';
         return;
     }
     const totalUSD = finalPrice * _quantity;
     const revenue = totalUSD * _lockedRate;
-    // 目标利润 = 最终报价收入 - 总成本（不再引用结果概览的_profitAmount）
-    const targetProfit = revenue - _totalCostWithTax;
-    const totalProfitWithRebate = targetProfit + _compliantRebate;
-    const margin = revenue > 0 ? (totalProfitWithRebate / revenue * 100) : 0;
+    // 利润 = 最终报价 × 锁定汇率 × 采购总量 - 总成本
+    const profit = revenue - _totalCostWithTax;
+    const totalProfit = profit + _compliantRebate;
+    const margin = revenue > 0 ? (totalProfit / revenue * 100) : 0;
     $('finalTotalUSD2').textContent = fmt(totalUSD, 2) + ' USD';
     $('finalRevenueRMB').textContent = fmt(revenue, 2) + ' 元';
-    $('finalActualProfit').textContent = fmt(targetProfit, 2) + ' 元';
-    $('finalTotalProfitWithRebate').textContent = fmt(totalProfitWithRebate, 2) + ' 元';
+    $('finalActualProfit').textContent = fmt(profit, 2) + ' 元';
+    $('finalRebateDisplay').textContent = fmt(_compliantRebate, 2) + ' 元';
+    $('finalTotalProfitWithRebate').textContent = fmt(totalProfit, 2) + ' 元';
     $('finalProfitMargin').textContent = fmt(margin, 2) + ' %';
 }
 
