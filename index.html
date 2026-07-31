@@ -1218,7 +1218,7 @@ function recalcFinal() {
 	            const data = await resp.json();
 	            const rate = api.parse(data);
 	            if (rate && rate > 1 && rate < 20) {
-	                .value = Number(rate).toFixed(4);
+	                $('centralRate').value = Number(rate).toFixed(4);
 	                btn.textContent = '✓';
 	                btn.style.background = '#2d7d46';
 	                btn.classList.remove('loading');
